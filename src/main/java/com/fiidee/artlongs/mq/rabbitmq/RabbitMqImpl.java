@@ -6,7 +6,6 @@ import com.fiidee.artlongs.mq.MqConfig;
 import com.fiidee.artlongs.mq.MsgEntity;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 import com.fiidee.artlongs.mq.tools.BeanCopy;
-import com.fiidee.artlongs.mq.tools.SnowflakeIdWorker;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -30,12 +29,9 @@ public class RabbitMqImpl implements MQ {
 
     private Connection connection;
 
-    private static EventBus eventBus;
+    private EventBus eventBus;
 
-    private static SnowflakeIdWorker snowflakeIdWorker = new SnowflakeIdWorker(0, 0);
-    ; // Twitter_Snowflake ID生成器
-
-    private static ISerializer serializer;
+    private ISerializer serializer;
 
 
     public RabbitMqImpl init(EventBus eventBus, ISerializer serializer) {
