@@ -20,15 +20,14 @@ package demo.mq.meta;
  * #L%
  */
 
+import static act.Destroyable.Util.destroyAll;
+
 import act.asm.Type;
 import act.util.DestroyableBase;
 import org.osgl.util.C;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Map;
-
-import static act.Destroyable.Util.destroyAll;
-import static act.app.App.logger;
+import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class HelloClassMetaInfoManager extends DestroyableBase {

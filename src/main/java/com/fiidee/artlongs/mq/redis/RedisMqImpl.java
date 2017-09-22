@@ -2,11 +2,8 @@ package com.fiidee.artlongs.mq.redis;
 
 import act.event.EventBus;
 import com.fiidee.artlongs.mq.MQ;
-import com.fiidee.artlongs.mq.MqBase;
-import com.fiidee.artlongs.mq.MqConfig;
 import com.fiidee.artlongs.mq.MsgEntity;
 import com.fiidee.artlongs.mq.rabbitmq.CallMe;
-import com.fiidee.artlongs.mq.rabbitmq.RabbitMqImpl;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
@@ -19,7 +16,7 @@ import java.nio.charset.Charset;
  * REDIS 消息发送与接收
  * Created by leeton on 8/22/17.
  */
-public class RedisMqImpl extends MqBase implements MQ {
+public class RedisMqImpl implements MQ {
     private static Logger logger = L.get(RedisMqImpl.class);
 
     private EventBus eventBus;
@@ -41,20 +38,20 @@ public class RedisMqImpl extends MqBase implements MQ {
     }
 
     @Override
-    public boolean receive(String exchangeName, String queueName, String topic,CallMe todo) {
+    public boolean subscribe(String exchangeName, String queueName, String topic, CallMe todo) {
         byte[] key = topic.toString().getBytes();
-        return receive(key, todo,"");
+        return subscribe(key, todo,"");
     }
 
     @Override
-    public boolean receive(String exchangeName, String queueName, String topic, String eventKey) {
+    public boolean subscribe(String exchangeName, String queueName, String topic, String eventKey) {
         byte[] key = topic.toString().getBytes();
-        return receive(key, null,eventKey);
+        return subscribe(key, null,eventKey);
     }
 
     @Override
-    public RedisMqImpl init(MqConfig config, EventBus eventBus, ISerializer serializer) {
-        this.jedisPool = RedisConfig.buildConnetion(config);
+    public RedisMqImpl init(EventBus eventBus, ISerializer serializer) {
+        this.jedisPool = RedisConfig.buildConnetion();
         this.eventBus = eventBus;
         this.serializer = serializer;
         return this;
@@ -91,7 +88,7 @@ public class RedisMqImpl extends MqBase implements MQ {
      * @param eventKey 回调的事件(可选)
      * @return
      */
-    private boolean receive(byte[] key,CallMe callMe,String eventKey){
+    private boolean subscribe(byte[] key, CallMe callMe, String eventKey){
        Jedis jedis = getJedis();
         RedisSubsribe subsribe = new RedisSubsribe(jedis,key,serializer,callMe,eventBus,eventKey);
         new Thread(subsribe).start();

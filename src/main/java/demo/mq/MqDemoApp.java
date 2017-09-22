@@ -1,16 +1,15 @@
 package demo.mq;
 
 import act.Act;
-import act.app.App;
-import act.app.AppByteCodeScanner;
 import act.controller.Controller;
 import act.event.EventBus;
 import act.event.On;
 import act.job.OnAppStart;
-import com.fiidee.artlongs.mq.*;
+import com.fiidee.artlongs.mq.MQ;
+import com.fiidee.artlongs.mq.MqReceiver;
+import com.fiidee.artlongs.mq.MsgEntity;
 import com.fiidee.artlongs.mq.rabbitmq.RabbitMqImpl;
 import com.fiidee.artlongs.mq.rocketmq.RocketMqImpl;
-import demo.mq.bytecode.HelloListenerByteCodeScanner;
 import org.joda.time.DateTime;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
@@ -19,15 +18,12 @@ import org.osgl.mvc.result.Result;
 
 import javax.inject.Inject;
 
-import static act.Act.app;
-import static act.controller.Controller.Util.redirect;
-import static act.controller.Controller.Util.renderJson;
-
 public class MqDemoApp extends Controller.Util{
 
     private static Logger logger = L.get(MqDemoApp.class);
 
-    private MQ mq = MqManager.me().getMq();
+    @Inject
+    private MQ mq;
 
     @Inject
     private EventBus eventBus;
@@ -35,7 +31,7 @@ public class MqDemoApp extends Controller.Util{
     @GetAction("/mq/send")
     public Result mq() {
         // 接收消息,并回调执行
-        boolean isReceived = mq.receive(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic","show_topic_1");
+        boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic","show_topic_1");
 
         MsgEntity msgEntity = new MsgEntity();
         logger.info("test mq send");
@@ -46,7 +42,7 @@ public class MqDemoApp extends Controller.Util{
 
         //  eventBus.trigger("test_event", "test_msg");
         //接收消息,并发布事件来执行
-       //boolean isReceived = mq.receive(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
+       //boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
 
         return renderJson(msgEntity);
     }
@@ -56,11 +52,11 @@ public class MqDemoApp extends Controller.Util{
     public Result rocketmq() {
         logger.info("test mq send");
         // 接收消息,并回调执行
-        boolean isReceived = mq.receive(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic", RocketMqImpl.toShow());
+        boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic", RocketMqImpl.toShow());
 
         //  eventBus.trigger("test_event", "test_msg");
         //接收消息,并发布事件来执行
-        //boolean isReceived = mq.receive(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
+        //boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
 
         MsgEntity msgEntity = mq.send("test", "topic", MQ.SendType.TOPIC);
 

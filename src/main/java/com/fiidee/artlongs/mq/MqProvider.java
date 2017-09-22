@@ -8,46 +8,28 @@ import com.fiidee.artlongs.mq.serializer.*;
 import com.fiidee.artlongs.mq.serializer.kryo.KryoSerializer;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
-public class MqManager {
-
-    private static MQ mq;
-    private static MqManager manager;
-    private static MqConfig mqConfig;
+public class MqProvider implements Provider<MQ> {
 
     @Inject
-    private static EventBus eventBus;
+    private EventBus eventBus;
 
-    private MqManager() {
-    }
-
-    public static MqManager me() {
-        if (manager == null) {
-            manager = new MqManager();
-            if (null == mqConfig) {
-                mqConfig = new MqConfig();
-            }
-        }
-        return manager;
-    }
-
-    public MQ getMq() {
-        if (mq == null) {
-            mq = buildMq();
-        }
-        return mq;
+    @Override
+    public MQ get() {
+        return buildMq();
     }
 
     private MQ buildMq() {
-        switch (mqConfig.provider.get()) {
+        switch (MqConfig.provider.get()) {
             case MqConfig.provider_redis:
                 return getRedisMq();
             case MqConfig.provider_rabbitmq:
-                return new RabbitMqImpl().init(mqConfig,eventBus,getserializer());
+                return new RabbitMqImpl().init(eventBus, getSerializer());
             case MqConfig.provider_rocketmq:
-                return new RocketMqImpl().init(mqConfig,eventBus,getserializer());
+                return new RocketMqImpl().init(eventBus, getSerializer());
             case MqConfig.provider_activemq:
             case MqConfig.provider_zmq:
                 throw new RuntimeException("TODO NEW MQ ...");
@@ -57,14 +39,11 @@ public class MqManager {
     }
 
     private MQ getRedisMq(){
-        if (null == mq) {
-            mq = new RedisMqImpl().init(mqConfig,eventBus,getserializer());
-        }
-        return mq;
+        return new RedisMqImpl().init(eventBus, getSerializer());
     }
 
-    private ISerializer getserializer(){
-        switch (mqConfig.serializer.get()) {
+    private ISerializer getSerializer(){
+        switch (MqConfig.serializer.get()) {
             case MqConfig.serializer_fst:
                 return new Fst2Serializer();
             case MqConfig.serializer_kryo:

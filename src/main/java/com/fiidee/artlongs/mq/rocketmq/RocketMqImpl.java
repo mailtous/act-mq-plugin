@@ -2,11 +2,9 @@ package com.fiidee.artlongs.mq.rocketmq;
 
 import act.event.EventBus;
 import com.fiidee.artlongs.mq.MQ;
-import com.fiidee.artlongs.mq.MqBase;
 import com.fiidee.artlongs.mq.MqConfig;
 import com.fiidee.artlongs.mq.MsgEntity;
 import com.fiidee.artlongs.mq.rabbitmq.CallMe;
-import com.fiidee.artlongs.mq.rabbitmq.RabbitMqImpl;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -26,10 +24,9 @@ import org.osgl.logging.Logger;
  *
  * Created by leeton on 8/22/17.
  */
-public class RocketMqImpl extends MqBase implements MQ {
+public class RocketMqImpl implements MQ {
     private static Logger logger = L.get(RocketMqImpl.class);
 
-    private static MqConfig mqConfig;
     private static EventBus eventBus;
     private static ISerializer serializer;
     private DefaultMQProducer producer = buildProducer();
@@ -68,12 +65,12 @@ public class RocketMqImpl extends MqBase implements MQ {
 
 
     @Override
-    public boolean receive(String exchangeName, String queueName, String topic, CallMe callMe) {
+    public boolean subscribe(String exchangeName, String queueName, String topic, CallMe callMe) {
        return pullMessageAndDoJob(topic, callMe, "");
     }
 
     @Override
-    public boolean receive(String exchangeName, String queueName, String topic, String eventKey) {
+    public boolean subscribe(String exchangeName, String queueName, String topic, String eventKey) {
         return pullMessageAndDoJob(topic, null, eventKey);
     }
 
@@ -119,8 +116,7 @@ public class RocketMqImpl extends MqBase implements MQ {
     }
 
     @Override
-    public RocketMqImpl init(MqConfig config, EventBus eventBus, ISerializer serializer) {
-        this.mqConfig = config;
+    public RocketMqImpl init(EventBus eventBus, ISerializer serializer) {
         this.eventBus = eventBus;
         this.serializer = serializer;
         return this;
@@ -128,10 +124,10 @@ public class RocketMqImpl extends MqBase implements MQ {
 
 
     private static DefaultMQProducer buildProducer() {
-        String groupName = mqConfig.rocketmq_producergroupname.get() + System.currentTimeMillis() + "";
+        String groupName = MqConfig.rocketmq_producergroupname.get() + System.currentTimeMillis() + "";
         DefaultMQProducer producer = new DefaultMQProducer(groupName);
-        producer.setNamesrvAddr(mqConfig.rocketmq_namesrvaddr.get());
-        producer.setInstanceName(mqConfig.rocketmq_producer.get());
+        producer.setNamesrvAddr(MqConfig.rocketmq_namesrvaddr.get());
+        producer.setInstanceName(MqConfig.rocketmq_producer.get());
         producer.setVipChannelEnabled(false);
         try {
             producer.start();
@@ -148,10 +144,10 @@ public class RocketMqImpl extends MqBase implements MQ {
      * @return
      */
     private DefaultMQPushConsumer buildConsumer() {
-        String groupName = mqConfig.rocketmq_consumergroupname.get() + System.currentTimeMillis() + "";
+        String groupName = MqConfig.rocketmq_consumergroupname.get() + System.currentTimeMillis() + "";
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(groupName);  //实质上还是拉取消息,无语
-        consumer.setNamesrvAddr(mqConfig.rocketmq_namesrvaddr.get());
-        consumer.setInstanceName(mqConfig.rocketmq_consumer.get());
+        consumer.setNamesrvAddr(MqConfig.rocketmq_namesrvaddr.get());
+        consumer.setInstanceName(MqConfig.rocketmq_consumer.get());
         consumer.setVipChannelEnabled(false);
         return consumer;
     }
