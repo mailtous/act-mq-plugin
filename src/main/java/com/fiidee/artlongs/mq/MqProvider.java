@@ -1,21 +1,17 @@
 package com.fiidee.artlongs.mq;
 
-import act.event.EventBus;
 import com.fiidee.artlongs.mq.rabbitmq.RabbitMqImpl;
 import com.fiidee.artlongs.mq.redis.RedisMqImpl;
 import com.fiidee.artlongs.mq.rocketmq.RocketMqImpl;
 import com.fiidee.artlongs.mq.serializer.*;
 import com.fiidee.artlongs.mq.serializer.kryo.KryoSerializer;
+import org.osgl.inject.annotation.Provides;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-@Singleton
 public class MqProvider implements Provider<MQ> {
 
-    @Inject
-    private EventBus eventBus;
 
     @Override
     public MQ get() {
@@ -27,9 +23,9 @@ public class MqProvider implements Provider<MQ> {
             case MqConfig.provider_redis:
                 return getRedisMq();
             case MqConfig.provider_rabbitmq:
-                return new RabbitMqImpl().init(eventBus, getSerializer());
+                return new RabbitMqImpl().init(getSerializer());
             case MqConfig.provider_rocketmq:
-                return new RocketMqImpl().init(eventBus, getSerializer());
+                return new RocketMqImpl().init(getSerializer());
             case MqConfig.provider_activemq:
             case MqConfig.provider_zmq:
                 throw new RuntimeException("TODO NEW MQ ...");
@@ -39,7 +35,7 @@ public class MqProvider implements Provider<MQ> {
     }
 
     private MQ getRedisMq(){
-        return new RedisMqImpl().init(eventBus, getSerializer());
+       return new RedisMqImpl().init(getSerializer());
     }
 
     private ISerializer getSerializer(){

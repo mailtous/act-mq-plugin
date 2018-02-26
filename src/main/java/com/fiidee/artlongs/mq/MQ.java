@@ -1,10 +1,13 @@
 package com.fiidee.artlongs.mq;
 
 
+import act.Act;
+import act.app.App;
 import act.event.EventBus;
 import com.fiidee.artlongs.mq.rabbitmq.CallMe;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -12,6 +15,31 @@ import javax.inject.Singleton;
  * Created by leeton on 8/18/17.
  */
 public interface MQ {
+
+
+    /**
+     * 消息传播方式
+     */
+    enum SendType{
+        FANOUT,  //广播的方式发布消息
+        TOPIC   //主题匹配的方式发布消息
+    }
+
+    class Module extends org.osgl.inject.Module {
+        @Override
+        protected void configure() {
+//            bind(MQ.class).in(Singleton.class).to(new MqProvider().get());
+            bind(MQ.class).to(new MqProvider().get());
+        }
+    }
+
+    /**
+     * 初始化消息服务器
+     * @param eventBus
+     * @param serializer
+     * @return
+     */
+    MQ init(ISerializer serializer);
 
     /**
      * 发布消息,使用默认的转换器及队列
@@ -55,28 +83,9 @@ public interface MQ {
      */
     boolean subscribe(String exchangeName, String queueName, String topic, String eventKey);
 
-    /**
-     * 初始化消息服务器
-     * @param eventBus
-     * @param serializer
-     * @return
-     */
-    MQ init(EventBus eventBus, ISerializer serializer);
 
 
-    /**
-     * 消息传播方式
-     */
-    enum SendType{
-        FANOUT,  //广播的方式发布消息
-        TOPIC   //主题匹配的方式发布消息
-    }
 
-    class Module extends org.osgl.inject.Module {
-        @Override
-        protected void configure() {
-            bind(MQ.class).in(Singleton.class).to(new MqProvider());
-        }
-    }
+
 
 }

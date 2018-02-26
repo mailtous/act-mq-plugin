@@ -1,6 +1,7 @@
 package demo.mq;
 
 import act.Act;
+import act.app.App;
 import act.controller.Controller;
 import act.event.EventBus;
 import act.event.On;
@@ -9,7 +10,6 @@ import com.fiidee.artlongs.mq.MQ;
 import com.fiidee.artlongs.mq.MqReceiver;
 import com.fiidee.artlongs.mq.MsgEntity;
 import com.fiidee.artlongs.mq.rabbitmq.RabbitMqImpl;
-import com.fiidee.artlongs.mq.rocketmq.RocketMqImpl;
 import org.joda.time.DateTime;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
@@ -18,6 +18,7 @@ import org.osgl.mvc.result.Result;
 
 import javax.inject.Inject;
 
+@Controller
 public class MqDemoApp extends Controller.Util{
 
     private static Logger logger = L.get(MqDemoApp.class);
@@ -52,13 +53,13 @@ public class MqDemoApp extends Controller.Util{
     public Result rocketmq() {
         logger.info("test mq send");
         // 接收消息,并回调执行
-        boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic", RocketMqImpl.toShow());
+    //    boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic", RocketMqImpl.toShow());
 
         //  eventBus.trigger("test_event", "test_msg");
         //接收消息,并发布事件来执行
         //boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
 
-        MsgEntity msgEntity = mq.send("test", "topic", MQ.SendType.TOPIC);
+    //    MsgEntity msgEntity = mq.send("test", "topic", MQ.SendType.TOPIC);
 
         return renderJson("");
     }
@@ -81,14 +82,7 @@ public class MqDemoApp extends Controller.Util{
        return renderJson("OK");
     }
 
-    @OnAppStart
-    public void doStarted(){
-        System.err.println("do Started " );
-/*        App app = app();
-        app.scannerManager().register(new HelloListenerByteCodeScanner());
-        AppByteCodeScanner scanner = app.scannerManager().byteCodeScannerByClass(HelloListenerByteCodeScanner.class);
-        scanner.start("MqDemoApp");*/
-    }
+
 
     /**
      * 如何把Hello的name 转给加注解的方法
@@ -96,7 +90,6 @@ public class MqDemoApp extends Controller.Util{
      * @return
      */
     @GetAction("/hello")
-    @Hello("leeton")
     public Result doHello(String name){
         System.err.println("say hello :" + name );
         return renderJson("hello"+name);
@@ -108,6 +101,7 @@ public class MqDemoApp extends Controller.Util{
         System.err.println("say hello :" + msg);
         return renderJson("hello" + msg);
     }
+
 
     public static void main(String[] args) throws Exception {
         Act.start("mq");

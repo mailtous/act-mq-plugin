@@ -10,6 +10,7 @@ import org.osgl.logging.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import javax.inject.Inject;
 import java.nio.charset.Charset;
 
 /**
@@ -19,9 +20,18 @@ import java.nio.charset.Charset;
 public class RedisMqImpl implements MQ {
     private static Logger logger = L.get(RedisMqImpl.class);
 
+    @Inject
     private EventBus eventBus;
     private ISerializer serializer;
     private JedisPool jedisPool;
+
+    @Override
+    public RedisMqImpl init(ISerializer serializer) {
+        this.jedisPool = RedisConfig.buildConnetion();
+//        this.eventBus = eventBus;
+        this.serializer = serializer;
+        return this;
+    }
 
     @Override
     public <MODEL> MsgEntity send(MODEL msg, String topic, SendType sendType) {
@@ -49,13 +59,7 @@ public class RedisMqImpl implements MQ {
         return subscribe(key, null,eventKey);
     }
 
-    @Override
-    public RedisMqImpl init(EventBus eventBus, ISerializer serializer) {
-        this.jedisPool = RedisConfig.buildConnetion();
-        this.eventBus = eventBus;
-        this.serializer = serializer;
-        return this;
-    }
+
 
 
     public Jedis getJedis(){

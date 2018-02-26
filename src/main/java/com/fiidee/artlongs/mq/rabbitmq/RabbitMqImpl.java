@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -29,14 +30,14 @@ public class RabbitMqImpl implements MQ {
 
     private Connection connection;
 
+    @Inject
     private EventBus eventBus;
 
     private ISerializer serializer;
 
 
-    public RabbitMqImpl init(EventBus eventBus, ISerializer serializer) {
+    public RabbitMqImpl init(ISerializer serializer) {
         getConnection();
-        this.eventBus = eventBus;
         this.serializer = serializer;
         return this;
     }

@@ -19,6 +19,8 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
 
+import javax.inject.Inject;
+
 /**
  * ROCKETMQ 的消息发送与接收
  *
@@ -27,9 +29,17 @@ import org.osgl.logging.Logger;
 public class RocketMqImpl implements MQ {
     private static Logger logger = L.get(RocketMqImpl.class);
 
+    @Inject
     private static EventBus eventBus;
     private static ISerializer serializer;
     private DefaultMQProducer producer = buildProducer();
+
+    @Override
+    public RocketMqImpl init(ISerializer serializer) {
+//        this.eventBus = eventBus;
+        this.serializer = serializer;
+        return this;
+    }
 
     @Override
     public <MODEL> MsgEntity send(MODEL msg, String topic, SendType sendType) {
@@ -115,12 +125,7 @@ public class RocketMqImpl implements MQ {
         return false;
     }
 
-    @Override
-    public RocketMqImpl init(EventBus eventBus, ISerializer serializer) {
-        this.eventBus = eventBus;
-        this.serializer = serializer;
-        return this;
-    }
+
 
 
     private static DefaultMQProducer buildProducer() {
