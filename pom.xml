@@ -4,13 +4,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ACT SNAPSHOT 用到的私服配置 -->
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
     </parent>
-    <!-- ACT SNAPSHOT 用到的私服配置 END -->
 
     <groupId>com.fiidee</groupId>
     <artifactId>act-mq</artifactId>
@@ -25,7 +23,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!--<act.version>1.6.0-BETA-5</act.version>-->
-        <act.version>1.5.3</act.version>
+        <!--<act.version>1.5.3</act.version>-->
+        <act.version>1.7.1</act.version>
         <commons.beanutils.version>1.8.3</commons.beanutils.version>
     </properties>
 
@@ -101,25 +100,13 @@
     </build>
 
     <dependencies>
-<!--        <dependency>
-            <groupId>org.actframework</groupId>
-            <artifactId>act</artifactId>
-            <version>${act.version}</version>
-        </dependency>-->
-
-        <!--我本地的版本-->
         <dependency>
             <groupId>org.actframework</groupId>
             <artifactId>act</artifactId>
             <version>${act.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

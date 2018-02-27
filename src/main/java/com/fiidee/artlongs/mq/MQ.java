@@ -28,8 +28,7 @@ public interface MQ {
     class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
-//            bind(MQ.class).in(Singleton.class).to(new MqProvider().get());
-            bind(MQ.class).to(new MqProvider().get());
+            bind(MQ.class).in(Singleton.class).to(new MqProvider());
         }
     }
 

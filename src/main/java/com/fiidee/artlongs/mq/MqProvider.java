@@ -10,6 +10,7 @@ import org.osgl.inject.annotation.Provides;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+@Singleton
 public class MqProvider implements Provider<MQ> {
 
 
