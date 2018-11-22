@@ -1,15 +1,12 @@
 package demo.mq;
 
 import act.Act;
-import act.app.App;
 import act.controller.Controller;
 import act.event.EventBus;
 import act.event.On;
-import act.job.OnAppStart;
 import com.fiidee.artlongs.mq.MQ;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.fiidee.artlongs.mq.MqReceiver;
-import com.fiidee.artlongs.mq.MsgEntity;
-import com.fiidee.artlongs.mq.rabbitmq.RabbitMqImpl;
 import org.joda.time.DateTime;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
@@ -29,39 +26,51 @@ public class MqDemoApp extends Controller.Util{
     @Inject
     private EventBus eventBus;
 
-    @GetAction("/mq/send")
-    public Result mq() {
-        // 接收消息,并回调执行
-        boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic","show_topic_1");
+    public static void main(String[] args) throws Exception {
+        Act.start("mq");
+    }
 
-        MsgEntity msgEntity = new MsgEntity();
+
+    @GetAction("/mq/redis")
+    public Result mqRedis() {
+        // 接收消息,并回调执行
+        boolean isReceived = mq.subscribe(MqEntity.Key.ofRedis("mq:topic") ,"show_topic_1");
+
+        MqEntity msgEntity = new MqEntity(MqEntity.Key.ofRedis("mq:topic"), "");
         logger.info("test mq send");
         for (int i = 0; i < 1; i++) {
             String msg = " test"+i;
-            msgEntity = mq.send(msg, "topic", MQ.SendType.TOPIC);
+            msgEntity = mq.send(msgEntity.setMsg(msg),  MQ.Spread.TOPIC);
         }
 
-        //  eventBus.trigger("test_event", "test_msg");
-        //接收消息,并发布事件来执行
-       //boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
+        return renderJson(msgEntity);
+    }
+
+    @GetAction("/mq/rabbit")
+    public Result mqrabbit() {
+        // 接收消息,并回调执行
+        boolean isReceived = mq.subscribe(MqEntity.Key.ofRabbitDefault("topic") ,"show_topic_1");
+
+        MqEntity msgEntity = new MqEntity(MqEntity.Key.ofRabbitDefault("topic"), "");
+        logger.info("test mq send");
+        for (int i = 0; i < 1; i++) {
+            String msg = " test"+i;
+            msgEntity = mq.send(msgEntity.setMsg(msg),  MQ.Spread.TOPIC);
+        }
 
         return renderJson(msgEntity);
     }
 
 
-    @GetAction("rocketmq")
+    @GetAction("/mq/rocket")
     public Result rocketmq() {
         logger.info("test mq send");
         // 接收消息,并回调执行
-    //    boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange,RabbitMqImpl.default_queue,"topic", RocketMqImpl.toShow());
+        boolean isReceived = mq.subscribe(MqEntity.Key.ofRocket("topic",""), "show_topic_1");
 
-        //  eventBus.trigger("test_event", "test_msg");
-        //接收消息,并发布事件来执行
-        //boolean isReceived = mq.subscribe(RabbitMqImpl.default_exchange, RabbitMqImpl.default_queue, "topic", "show_topic_1");
+        MqEntity msgEntity = mq.send(new MqEntity(MqEntity.Key.ofRocket("topic",""),"hello"));
 
-    //    MsgEntity msgEntity = mq.send("test", "topic", MQ.SendType.TOPIC);
-
-        return renderJson("");
+        return renderJson(msgEntity);
     }
 
 
@@ -97,15 +106,12 @@ public class MqDemoApp extends Controller.Util{
 
 
     @MqReceiver("topic")
-    public Result getMq(MsgEntity msg) {
+    public Result getMq(MqEntity msg) {
         System.err.println("say hello :" + msg);
         return renderJson("hello" + msg);
     }
 
 
-    public static void main(String[] args) throws Exception {
-        Act.start("mq");
-    }
 
 
 }

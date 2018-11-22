@@ -1,6 +1,6 @@
 package com.fiidee.artlongs.mq.serializer;
 
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -27,7 +27,7 @@ public class GsonSerializer implements ISerializer {
     public <T extends Serializable> T getObj(byte[] bytes) {
         String jsonStr = new String(bytes);
         try {
-            T obj = gson.fromJson(jsonStr, (Type) MsgEntity.class);
+            T obj = gson.fromJson(jsonStr, (Type) MqEntity.class);
             return obj;
         } catch (JsonSyntaxException e) {
             e.printStackTrace();

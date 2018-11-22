@@ -3,7 +3,7 @@ package com.fiidee.artlongs.mq.rocketmq;
 import act.event.EventBus;
 import com.fiidee.artlongs.mq.MQ;
 import com.fiidee.artlongs.mq.MqConfig;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.fiidee.artlongs.mq.rabbitmq.CallMe;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -41,23 +41,28 @@ public class RocketMqImpl implements MQ {
         return this;
     }
 
+
     @Override
-    public <MODEL> MsgEntity send(MODEL msg, String topic, SendType sendType) {
-        MsgEntity msgEntity = new MsgEntity();
+    public <MODEL> MqEntity send(MqEntity mqEntity) {
+
+        return send(mqEntity, mqEntity.getSpread());
+    }
+
+    @Override
+    public <MODEL> MqEntity send(MqEntity mqEntity, Spread sendType) {
         if (producer != null) {
             try {
-
-                msgEntity.setMsg(msg);
                 Message message = new Message();
-                message.setTopic(topic);
-                message.setTags("");
-                message.setBody(serializer.getByte(msgEntity));
+                message.setBuyerId(mqEntity.getId());
+                message.setTopic(mqEntity.getKey().getTopic());
+                message.setTags(mqEntity.getKey().getTags());
+                message.setBody(serializer.getByte(mqEntity.getMsg()));
                 SendResult sendResult = producer.send(message);
                 if (sendResult != null && SendStatus.SEND_OK == sendResult.getSendStatus()) {
-                    logger.debug("[SEND] msg = [" + msg + "], topic = [" + topic + "], sendType = [" + sendType + "]");
-                    msgEntity.setSended(true);
+                    mqEntity.setSended(true);
+                    logger.debug("[SEND] msg = [{}], topic = [{}], sendType = [{}]",mqEntity.getMsg(),mqEntity.getKey().getTopic(),mqEntity.getSpread());
                 }
-                return msgEntity;
+                return mqEntity;
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -65,23 +70,17 @@ public class RocketMqImpl implements MQ {
             }
 
         }
-        return msgEntity;
+        return mqEntity;
     }
 
     @Override
-    public <MODEL> MsgEntity send(MODEL msg, String exchangeName, String queueName, String topic, SendType sendType) {
-        return send(msg, topic, sendType);
-    }
-
-
-    @Override
-    public boolean subscribe(String exchangeName, String queueName, String topic, CallMe callMe) {
-       return pullMessageAndDoJob(topic, callMe, "");
+    public boolean subscribe(MqEntity.Key key, CallMe callMe) {
+       return pullMessageAndDoJob(key.getTopic(),key.getTags(), callMe, "");
     }
 
     @Override
-    public boolean subscribe(String exchangeName, String queueName, String topic, String eventKey) {
-        return pullMessageAndDoJob(topic, null, eventKey);
+    public boolean subscribe(MqEntity.Key key, String eventKey) {
+        return pullMessageAndDoJob(key.getTopic(),key.getTags(), null, eventKey);
     }
 
     /**
@@ -91,18 +90,18 @@ public class RocketMqImpl implements MQ {
      * @param eventKey 回调的事件KEY
      * @return
      */
-    private boolean pullMessageAndDoJob(String topic, CallMe callMe, String eventKey) {
+    private boolean pullMessageAndDoJob(String topic, String tags, CallMe callMe, String eventKey) {
         DefaultMQPushConsumer consumer = buildConsumer();
 
         if (consumer != null) {
             try {
-                consumer.subscribe(topic, "*");
+                consumer.subscribe(topic, tags);
                 consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
                 MessageListenerConcurrently listener = (msgList, context) -> {
                     logger.debug("[RECV]" + Thread.currentThread().getName() + " Receive New Messages: " + msgList.size());
                     if (msgList.size() > 0) {
                         MessageExt msg = msgList.get(0);
-                        MsgEntity msgEntity = serializer.getObj(msg.getBody(), MsgEntity.class);
+                        MqEntity msgEntity = serializer.getObj(msg.getBody(), MqEntity.class);
                         //执行真正的业务
                         if (callMe != null) {
                             callMe.exec(msgEntity);
@@ -159,7 +158,7 @@ public class RocketMqImpl implements MQ {
 
     public static CallMe toShow() {
         CallMe todo = (c) -> {
-            System.err.println("[CALLME]: " + c);
+            logger.info("[CALLME]: " + c);
         };
         return todo;
     }

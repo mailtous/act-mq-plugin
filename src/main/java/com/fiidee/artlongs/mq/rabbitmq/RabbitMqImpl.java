@@ -3,12 +3,12 @@ package com.fiidee.artlongs.mq.rabbitmq;
 import act.event.EventBus;
 import com.fiidee.artlongs.mq.MQ;
 import com.fiidee.artlongs.mq.MqConfig;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
-import com.fiidee.artlongs.mq.tools.BeanCopy;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.osgl.$;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
 
@@ -42,31 +42,16 @@ public class RabbitMqImpl implements MQ {
         return this;
     }
 
+
     @Override
-    public <MODEL> MsgEntity send(MODEL msg, String topic, SendType sendType) {
-        MsgEntity msgEntity = new MsgEntity();
-        msgEntity.setMsg(msg);
-        msgEntity.setTopic(topic);
-        msgEntity.setSendType(sendType);
-        msgEntity.setQueue(default_queue);
-        msgEntity.setExchange(default_exchange);
-        return send(msgEntity);
+    public <MODEL> MqEntity send(MqEntity entity, Spread spread) {
+        entity.setSpread(spread);
+        return send(entity);
     }
 
     @Override
-    public <MODEL> MsgEntity send(MODEL msg, String exchangeName, String queueName, String topic, SendType sendType) {
-        MsgEntity msgEntity = new MsgEntity();
-        msgEntity.setMsg(msg);
-        msgEntity.setExchange(exchangeName);
-        msgEntity.setQueue(queueName);
-        msgEntity.setTopic(topic);
-        msgEntity.setSendType(sendType);
-        return send(msgEntity);
-    }
-
-
-    private <MODEL> MsgEntity send(MsgEntity msgEntity) {
-        Channel channel = getChannel(msgEntity.getExchange(), msgEntity.getSendType());
+    public <MODEL> MqEntity send(MqEntity msgEntity) {
+        Channel channel = getChannel(msgEntity.getKey().getExchange(), msgEntity.getSpread());
 
         if (channel == null) {
             msgEntity.setSended(false);
@@ -76,17 +61,16 @@ public class RabbitMqImpl implements MQ {
         try {
             //String queueName = channel.queueDeclare().getQueue(); //匿名队列
             boolean durable = true; //Server端的Queue持久化
-            String queue = StringUtils.defaultString(msgEntity.getQueue(), default_queue);
+            String queue = StringUtils.defaultString(msgEntity.getKey().getQueue(), default_queue);
             String queueName = channel.queueDeclare(queue, durable, false, false, null).getQueue();
-            queueBind(channel, msgEntity.getExchange(), queueName, msgEntity.getTopic());
+            queueBind(channel, msgEntity.getKey().getExchange(), queueName, msgEntity.getKey().getTopic());
             //限制发给同一个消费者不得超过1条消息
             int prefetchCount = 1;
             channel.basicQos(prefetchCount);
             //设置消息ID,有需要的话可以通过id来进行消息排序
-            String messageId = new String(System.nanoTime() + "");
-            AMQP.BasicProperties basicProperties = new AMQP.BasicProperties().builder().messageId(messageId).build();
+            AMQP.BasicProperties basicProperties = new AMQP.BasicProperties().builder().messageId(msgEntity.getId()).build();
             logger.debug(" [SEND] =" + msgEntity);
-            channel.basicPublish(msgEntity.getExchange(), msgEntity.getTopic(), basicProperties, serializer.getByte(msgEntity));
+            channel.basicPublish(msgEntity.getKey().getExchange(), msgEntity.getKey().getTopic(), basicProperties, serializer.getByte(msgEntity));
 
             msgEntity.setSended(true);
             closeChannel(channel);
@@ -99,14 +83,29 @@ public class RabbitMqImpl implements MQ {
     }
 
     @Override
-    public boolean subscribe(String exchangeName, String queueName, String topic, CallMe callMe) {
+    public boolean subscribe(MqEntity.Key key, CallMe callMe) {
+        return subscribe(key, callMe, null);
+
+    }
+
+
+    public boolean subscribe(MqEntity.Key key, String eventKey) {
+        return subscribe(key, null, eventKey);
+    }
+
+    private boolean subscribe(MqEntity.Key key, CallMe callMe,String eventKey) {
         try {
-            Channel channel = getChannelAndSetting(exchangeName, queueName, topic);
+            Channel channel = getChannelAndSetting(key.getExchange(), key.getQueue(), key.getTopic());
             //QueueingConsumer consumer = new QueueingConsumer(channel);
-            Receiver consumer = buildConsumerAndGetMessage(exchangeName, queueName, channel, callMe);
+            Receiver consumer;
+            if (null != callMe) {
+                consumer = buildConsumerAndGetMessage(key.getExchange(),  key.getQueue(), channel, callMe);
+            }else {
+                consumer = buildConsumerAndGetMessage(key.getExchange(),  key.getQueue(), channel, eventKey);
+            }
 
             boolean autoAck = false;
-            channel.basicConsume(queueName, autoAck, consumer);
+            channel.basicConsume(key.getQueue(), autoAck, consumer);
 
             return true;
 
@@ -116,25 +115,10 @@ public class RabbitMqImpl implements MQ {
         return false;
     }
 
-
-    public boolean subscribe(String exchangeName, String queueName, String topic, String eventKey) {
-        try {
-            Channel channel = getChannelAndSetting(exchangeName, queueName, topic);
-            Receiver consumer = buildConsumerAndGetMessage(exchangeName, queueName, channel, eventKey);
-
-            boolean autoAck = false;
-            channel.basicConsume(queueName, autoAck, consumer);
-            return true;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 
 
     private Channel getChannelAndSetting(String exchangeName, String queueName, String topic) {
-        Channel channel = getChannel(exchangeName, SendType.TOPIC);
+        Channel channel = getChannel(exchangeName, Spread.TOPIC);
         if (null != channel) {
             try {
                 // 订阅某个关键词，绑定到匿名Queue中
@@ -173,7 +157,7 @@ public class RabbitMqImpl implements MQ {
     private Receiver buildConsumerAndGetMessage(String exchangeName, String queueName, Channel channel, CallMe callMe) {
         Receiver consumer = (String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) -> {
             if (null != body) {
-                MsgEntity msgEntity = getMessage(body);
+                MqEntity msgEntity = getMessage(body);
                 boolean autoAck = false;
                 logger.debug("[RECE] '" + envelope.getRoutingKey() + "':'" + msgEntity.getMsg() + " id: " + properties.getMessageId());
                 channel.basicAck(envelope.getDeliveryTag(), false);//手动确认已收到消息
@@ -198,7 +182,7 @@ public class RabbitMqImpl implements MQ {
     private Receiver buildConsumerAndGetMessage(String exchangeName, String queueName, Channel channel, String eventKey) {
         Receiver consumer = (String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) -> {
             if (null != body) {
-                MsgEntity msgEntity = getMessage(body);
+                MqEntity msgEntity = getMessage(body);
                 boolean autoAck = false;
                 logger.debug("[RECE] '" + envelope.getRoutingKey() + "':'" + msgEntity.getMsg());
                 channel.basicAck(envelope.getDeliveryTag(), false);//手动确认已收到消息
@@ -209,17 +193,15 @@ public class RabbitMqImpl implements MQ {
         return consumer;
     }
 
-    public MsgEntity getMessage(byte[] body) {
-        MsgEntity msgEntity = new MsgEntity();
+    public MqEntity getMessage(byte[] body) {
+        MqEntity msgEntity = MqEntity.ofDef("");
         Object obj = new Object();
-        ;
-        msgEntity.setMsg("");
         if (body == null) return msgEntity;
         try {
             obj = serializer.getObj(body);
-            return (MsgEntity) obj;
+            return (MqEntity) obj;
         } catch (Exception e) { //转换类型失败,则使用BEAN COPY
-            BeanCopy.copy(obj, msgEntity);
+            $.deepCopy(obj).to(msgEntity);
         }
         return msgEntity;
     }
@@ -250,7 +232,7 @@ public class RabbitMqImpl implements MQ {
             try {
                 connection = factory.newConnection();
             } catch (Exception e) {
-                throw new RuntimeException("can not connection rabbitmq server", e);
+                throw new RuntimeException("[x] can not connection rabbitmq server", e);
             }
         }
 
@@ -264,7 +246,7 @@ public class RabbitMqImpl implements MQ {
      * @param sendType
      * @return
      */
-    private Channel getChannel(String exchangeName, SendType sendType) {
+    private Channel getChannel(String exchangeName, Spread sendType) {
         Channel channel = null;
         try {
             channel = connection.createChannel();
@@ -279,11 +261,16 @@ public class RabbitMqImpl implements MQ {
         return channel;
     }
 
-    private BuiltinExchangeType getRabbitMqExchangeType(SendType sendType) {
-        if (sendType == SendType.FANOUT) {
+    /**
+     * 设置消息传播方式
+     * @param sendType
+     * @return
+     */
+    private BuiltinExchangeType getRabbitMqExchangeType(Spread sendType) {
+        if (Spread.FANOUT == sendType) {
             return BuiltinExchangeType.FANOUT;
         }
-        if (sendType == SendType.TOPIC) {
+        if (Spread.TOPIC == sendType) {
             return BuiltinExchangeType.TOPIC;
         }
         return BuiltinExchangeType.TOPIC;

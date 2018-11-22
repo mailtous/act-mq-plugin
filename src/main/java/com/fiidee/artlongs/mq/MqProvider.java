@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 @Singleton
 public class MqProvider implements Provider<MQ> {
 
-
     @Override
     public MQ get() {
         return buildMq();
@@ -28,8 +27,9 @@ public class MqProvider implements Provider<MQ> {
             case MqConfig.provider_rocketmq:
                 return new RocketMqImpl().init(getSerializer());
             case MqConfig.provider_activemq:
+                throw new RuntimeException("TODO activemq mq provider ...");
             case MqConfig.provider_zmq:
-                throw new RuntimeException("TODO NEW MQ ...");
+                throw new RuntimeException("TODO zmq mq provider ...");
             default:
                 return getRedisMq();
         }

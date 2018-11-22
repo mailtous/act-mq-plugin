@@ -2,7 +2,7 @@ package com.fiidee.artlongs.mq.serializer.kryo;
 
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import de.javakaffee.kryoserializers.*;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -24,7 +24,7 @@ public class KryoReflectionFactory extends KryoReflectionFactorySupport
        // setAutoReset(false);
        // setMaxDepth(5);
         setInstantiatorStrategy(new StdInstantiatorStrategy());
-        register(MsgEntity.class,new JavaSerializer());
+        register(MqEntity.class,new JavaSerializer());
         register(Arrays.asList("").getClass(), new ArraysAsListSerializer());
         register(Collections.EMPTY_LIST.getClass(), new CollectionsEmptyListSerializer());
         register(Collections.EMPTY_MAP.getClass(), new CollectionsEmptyMapSerializer());

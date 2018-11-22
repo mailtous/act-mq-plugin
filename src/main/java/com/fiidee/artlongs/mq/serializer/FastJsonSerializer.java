@@ -1,7 +1,7 @@
 package com.fiidee.artlongs.mq.serializer;
 
 import com.alibaba.fastjson.JSON;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 
 import java.io.Serializable;
 
@@ -21,7 +21,7 @@ public class FastJsonSerializer implements ISerializer {
     public <T extends Serializable>  T getObj(byte[] bytes) {
 /*        String jsonStr = new String(bytes);
         T obj = JSON.parseObject(jsonStr,(Class<T>) msgEntity.class);*/
-        T obj = JSON.parseObject(bytes,MsgEntity.class);
+        T obj = JSON.parseObject(bytes,MqEntity.class);
         return obj;
     }
 
@@ -34,10 +34,9 @@ public class FastJsonSerializer implements ISerializer {
 
 
     public static void main(String[] args) {
-        MsgEntity msgEntity = new MsgEntity();
-        msgEntity.setMsg("test");
+        MqEntity msgEntity = MqEntity.ofDef("test");
         byte[] bytes = new FastJsonSerializer().getByte(msgEntity);
-        MsgEntity entity =  new FastJsonSerializer().getObj(bytes);
+        MqEntity entity =  new FastJsonSerializer().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
     }
 

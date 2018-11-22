@@ -4,7 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 
 import java.io.ByteArrayInputStream;
@@ -58,11 +58,10 @@ public class KryoSerializer implements ISerializer {
     }
 
     public static void main(String[] args) {
-        MsgEntity msgEntity = new MsgEntity();
-        msgEntity.setMsg("test");
+        MqEntity msgEntity = MqEntity.ofDef("test");
 
         byte[] bytes = new KryoSerializer().getByte(msgEntity);
-        MsgEntity entity =  new KryoSerializer().getObj(bytes);
+        MqEntity entity =  new KryoSerializer().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
 
     }

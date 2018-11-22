@@ -1,6 +1,6 @@
 package com.fiidee.artlongs.mq.serializer;
 
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import link.jfire.codejson.JsonTool;
 
 import java.io.Serializable;
@@ -18,7 +18,7 @@ public class CodeJson implements ISerializer {
     @Override
     public <T extends Serializable> T getObj(byte[] bytes) {
         String jsonStr = new String(bytes);
-        T obj = JsonTool.read(MsgEntity.class, jsonStr);
+        T obj = JsonTool.read(MqEntity.class, jsonStr);
         return obj;
     }
 
@@ -31,10 +31,9 @@ public class CodeJson implements ISerializer {
     }
 
     public static void main(String[] args) {
-        MsgEntity msgEntity = new MsgEntity();
-        msgEntity.setMsg("test");
+        MqEntity msgEntity = MqEntity.ofDef("test");
         byte[] bytes = new CodeJson().getByte(msgEntity);
-        MsgEntity entity =  new CodeJson().getObj(bytes);
+        MqEntity entity =  new CodeJson().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
     }
 

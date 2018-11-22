@@ -2,7 +2,7 @@ package com.fiidee.artlongs.mq.redis;
 
 import act.event.EventBus;
 import com.fiidee.artlongs.mq.MQ;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.fiidee.artlongs.mq.rabbitmq.CallMe;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 import org.osgl.logging.L;
@@ -33,38 +33,39 @@ public class RedisMqImpl implements MQ {
         return this;
     }
 
-    @Override
-    public <MODEL> MsgEntity send(MODEL msg, String topic, SendType sendType) {
-        MsgEntity msgEntity = new MsgEntity();
-        byte[] redisKey = topic.toString().getBytes(Charset.forName("utf-8"));
-        byte[] message = serializer.getByte(msgEntity.setMsg(msg));
-        msgEntity.setSended(publish(redisKey, message));
-        return msgEntity;
-    }
-
-    @Override
-    public <MODEL> MsgEntity send(MODEL msg, String exchangeName, String queueName, String topic, SendType sendType) {
-        return send(msg, topic, sendType);
-    }
-
-    @Override
-    public boolean subscribe(String exchangeName, String queueName, String topic, CallMe todo) {
-        byte[] key = topic.toString().getBytes();
-        return subscribe(key, todo,"");
-    }
-
-    @Override
-    public boolean subscribe(String exchangeName, String queueName, String topic, String eventKey) {
-        byte[] key = topic.toString().getBytes();
-        return subscribe(key, null,eventKey);
-    }
-
-
-
-
+    //返回 REDIS 数据源
     public Jedis getJedis(){
         return jedisPool.getResource();
     }
+
+
+    @Override
+    public <MODEL> MqEntity send(MqEntity mqEntity) {
+        byte[] redisKey = mqEntity.getKey().getTopic().getBytes(Charset.forName("utf-8"));
+        byte[] message = serializer.getByte(mqEntity.getMsg());
+        mqEntity.setSended(publish(redisKey, message));
+        return mqEntity;
+    }
+
+    @Override
+    public <MODEL> MqEntity send(MqEntity mqEntity, Spread sendType) {
+        mqEntity.setSpread(sendType);
+        return send(mqEntity);
+    }
+
+
+    @Override
+    public boolean subscribe(MqEntity.Key key, CallMe todo) {
+        byte[] redisKey = key.getTopic().getBytes();
+        return subscribe(redisKey, todo,"");
+    }
+
+    @Override
+    public boolean subscribe(MqEntity.Key key, String eventKey) {
+        byte[] redisKey = key.getTopic().getBytes();
+        return subscribe(redisKey, null,eventKey);
+    }
+
 
     /**
      * 发布
@@ -77,6 +78,7 @@ public class RedisMqImpl implements MQ {
         try {
             Long rt = getJedis().publish(key, message);
             logger.debug("msg is sended ,recever count: = " +rt);
+            return rt>0;
         } catch (Exception e) {
             e.printStackTrace();
         }finally {

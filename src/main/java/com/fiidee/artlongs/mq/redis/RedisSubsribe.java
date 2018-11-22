@@ -1,7 +1,7 @@
 package com.fiidee.artlongs.mq.redis;
 
 import act.event.EventBus;
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import com.fiidee.artlongs.mq.rabbitmq.CallMe;
 import com.fiidee.artlongs.mq.serializer.ISerializer;
 import redis.clients.jedis.BinaryJedisPubSub;
@@ -45,7 +45,7 @@ public class RedisSubsribe extends BinaryJedisPubSub implements Runnable {
     }
 
     private void exec(byte[] message) {
-        MsgEntity msg = serializer.getObj(message);
+        MqEntity msg = serializer.getObj(message);
         if (null != callMe) {
             callMe.exec(msg);
         } else {

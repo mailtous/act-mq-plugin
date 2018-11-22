@@ -1,5 +1,9 @@
 package com.fiidee.artlongs.mq.tools;
 
+import org.joda.time.DateTime;
+
+import java.util.Date;
+
 /**
  * Twitter_Snowflake<br>
  * SnowFlake的结构如下(每部分用-分开):<br>
@@ -106,11 +110,12 @@ public class SnowflakeIdWorker {
         //上次生成ID的时间截
         lastTimestamp = timestamp;
 
-        //移位并通过或运算拼到一起组成64位的ID
+/*        //移位并通过或运算拼到一起组成64位的ID
         return ((timestamp - twepoch) << timestampLeftShift) //
                 | (datacenterId << datacenterIdShift) //
                 | (workerId << workerIdShift) //
-                | sequence;
+                | sequence;*/
+        return lastTimestamp;
     }
 
     /**
@@ -118,7 +123,7 @@ public class SnowflakeIdWorker {
      * @param lastTimestamp 上次生成ID的时间截
      * @return 当前时间戳
      */
-    protected long tilNextMillis(long lastTimestamp) {
+    private long tilNextMillis(long lastTimestamp) {
         long timestamp = timeGen();
         while (timestamp <= lastTimestamp) {
             timestamp = timeGen();
@@ -130,14 +135,26 @@ public class SnowflakeIdWorker {
      * 返回以毫秒为单位的当前时间
      * @return 当前时间(毫秒)
      */
-    protected long timeGen() {
-        return System.currentTimeMillis();
+    private long timeGen() {
+//        return System.currentTimeMillis();
+        StringBuffer n= new StringBuffer(new DateTime().toString("yyyyMMddHHmmssSSS")).append(datacenterId).append(workerId);
+        return Long.valueOf(n.toString());
+    }
+
+    private StringBuffer getYmdId(){
+        StringBuffer n= new StringBuffer(new DateTime().toString("yyyyMMddHHmmssSSS")).append(datacenterId).append(workerId);
+        return n;
+    }
+
+    public String getId(){
+        return String.valueOf(nextId());
     }
 
     //==============================Test=============================================
     /** 测试 */
     public static void main(String[] args) {
-        SnowflakeIdWorker idWorker = new SnowflakeIdWorker(0, 0);
+        System.err.println(new DateTime("2000-01-01").toDate().getTime());
+        SnowflakeIdWorker idWorker = new SnowflakeIdWorker(1, 0);
         for (int i = 0; i < 1000; i++) {
             long id = idWorker.nextId();
             System.out.println(Long.toBinaryString(id));

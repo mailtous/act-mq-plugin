@@ -1,7 +1,7 @@
 package com.fiidee.artlongs.mq.serializer;
 
 
-import com.fiidee.artlongs.mq.MsgEntity;
+import com.fiidee.artlongs.mq.MqEntity;
 import org.nustaq.serialization.FSTConfiguration;
 
 import java.io.Serializable;
@@ -28,11 +28,9 @@ public class Fst2Serializer implements ISerializer {
     }
 
     public static void main(String[] args) {
-        MsgEntity msgEntity = new MsgEntity();
-        msgEntity.setMsg("test");
-
+        MqEntity msgEntity = MqEntity.ofDef("test");
         byte[] bytes = new Fst2Serializer().getByte(msgEntity);
-        MsgEntity entity =  new Fst2Serializer().getObj(bytes);
+        MqEntity entity =  new Fst2Serializer().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
 
     }
