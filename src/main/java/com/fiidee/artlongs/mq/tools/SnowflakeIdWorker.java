@@ -1,7 +1,9 @@
 package com.fiidee.artlongs.mq.tools;
 
 import org.joda.time.DateTime;
+import org.osgl.util.S;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -21,7 +23,7 @@ public class SnowflakeIdWorker {
 
     // ==============================Fields===========================================
     /** 开始时间截 (2015-01-01) */
-    private final long twepoch = 1420041600000L;
+    private static final long twepoch = 1420041600000L;
 
     /** 机器id所占的位数 */
     private final long workerIdBits = 5L;
@@ -110,12 +112,11 @@ public class SnowflakeIdWorker {
         //上次生成ID的时间截
         lastTimestamp = timestamp;
 
-/*        //移位并通过或运算拼到一起组成64位的ID
+        //移位并通过或运算拼到一起组成64位的ID
         return ((timestamp - twepoch) << timestampLeftShift) //
                 | (datacenterId << datacenterIdShift) //
                 | (workerId << workerIdShift) //
-                | sequence;*/
-        return lastTimestamp;
+                | sequence;
     }
 
     /**
@@ -136,9 +137,7 @@ public class SnowflakeIdWorker {
      * @return 当前时间(毫秒)
      */
     private long timeGen() {
-//        return System.currentTimeMillis();
-        StringBuffer n= new StringBuffer(new DateTime().toString("yyyyMMddHHmmssSSS")).append(datacenterId).append(workerId);
-        return Long.valueOf(n.toString());
+        return System.currentTimeMillis();
     }
 
     private StringBuffer getYmdId(){
@@ -154,6 +153,7 @@ public class SnowflakeIdWorker {
     /** 测试 */
     public static void main(String[] args) {
         System.err.println(new DateTime("2000-01-01").toDate().getTime());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
         SnowflakeIdWorker idWorker = new SnowflakeIdWorker(1, 0);
         for (int i = 0; i < 1000; i++) {
             long id = idWorker.nextId();
