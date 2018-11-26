@@ -3,63 +3,47 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+    <packaging>pom</packaging>
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
     </parent>
 
-    <groupId>com.fiidee</groupId>
-    <artifactId>act-mq</artifactId>
-    <version>1.0.0</version>
+    <groupId>act-mq-plugin</groupId>
+    <artifactId>act-mq-plugin-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>act-mq-plugin-parent</name>
+    <description>MQ of actframework</description>
+    <url>https://github.com/mailtous/act-mq-plugin</url>
 
-    <name>act-mq</name>
-    <description>mq in actframework</description>
-    <url>http://fiidee.com/</url>
+    <modules>
+        <module>act-mq-plugin-core</module>
+        <module>act-mq-plugin-tester</module>
+    </modules>
 
     <properties>
-        <app.entry>demo.mq.MqDemoApp</app.entry>
+        <scm.url>https://github.com/mailtous/act-mq-plugin.git</scm.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!--<act.version>1.6.0-BETA-5</act.version>-->
-        <!--<act.version>1.5.3</act.version>-->
+        <maven.compiler.source>1.8</maven.compiler.source>
         <act.version>1.8.12</act.version>
-        <commons.beanutils.version>1.8.3</commons.beanutils.version>
+        <app.entry>com.artlongs.mq.AppStart</app.entry>
+        <app.base>${project.basedir}/act-mq-plugin-tester/</app.base>
     </properties>
-
+    <scm>
+        <connection>scm:git:${scm.url}</connection>
+        <developerConnection>scm:git:${scm.url}</developerConnection>
+        <url>${scm.url}</url>
+    </scm>
 
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>act-mq-plugin-core/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.5</version>
-                <executions>
-                    <execution>
-                        <id>create-archive</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/assembly/pkg.xml</descriptor>
-                            </descriptors>
-                            <outputDirectory>${project.build.directory}/dist/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
 
         <pluginManagement>
             <plugins>
@@ -80,21 +64,6 @@
                         <includePom>true</includePom>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.2.1</version>
-                    <configuration>
-                        <executable>java</executable>
-                        <arguments>
-                            <argument>-Xms512m</argument>
-                            <argument>-Xmx512m</argument>
-                            <argument>-classpath</argument>
-                            <classpath/>
-                            <argument>${app.entry}</argument>
-                        </arguments>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -106,7 +75,6 @@
             <version>${act.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -118,63 +86,6 @@
             <artifactId>logback-classic</artifactId>
             <version>1.1.6</version>
         </dependency>
-
-
-        <!-- rabbitmq -->
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>4.1.0</version>
-        </dependency>
-        <!-- RocketMq -->
-        <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-client</artifactId>
-            <version>4.1.0-incubating</version>
-            <!--<version>3.2.6</version>-->
-        </dependency>
-        <!-- redis mq-->
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>2.9.0</version>
-        </dependency>
-
-        <!-- serializer  begin -->
-        <dependency>
-            <groupId>de.ruedigermoeller</groupId>
-            <artifactId>fst</artifactId>
-            <version>2.50</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>de.javakaffee</groupId>
-            <artifactId>kryo-serializers</artifactId>
-            <version>0.42</version>
-        </dependency>
-        <dependency>
-
-            <groupId>link.jfire</groupId>
-            <artifactId>codejson</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>link.jfire</groupId>
-            <artifactId>jfire-baseutil</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-        <!-- serializer end -->
 
 
     </dependencies>
