@@ -24,7 +24,7 @@ public class KryoSerializer implements ISerializer {
         kryo = KryoHolder.get();
     }
 
-    public byte[] getByte(Object object) {
+    public byte[] toByte(Object object) {
         kryo.register(object.getClass(), new JavaSerializer());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -60,7 +60,7 @@ public class KryoSerializer implements ISerializer {
     public static void main(String[] args) {
         MqEntity msgEntity = MqEntity.ofDef("test");
 
-        byte[] bytes = new KryoSerializer().getByte(msgEntity);
+        byte[] bytes = new KryoSerializer().toByte(msgEntity);
         MqEntity entity =  new KryoSerializer().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
 

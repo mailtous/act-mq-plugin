@@ -3,4 +3,5 @@
 开发及运行环境 jdk8,idea,redis 或(rabbitmq,rocketmq)
 
 # 项目启动
-act-mq-plugin-tester /AppStart
+act-mq-plugin-tester --> AppStart
+项目的启动目录要配置成:%MODULE_WORKING_DIR%

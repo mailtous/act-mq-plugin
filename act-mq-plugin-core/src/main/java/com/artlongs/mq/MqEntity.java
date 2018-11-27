@@ -209,8 +209,8 @@ public class MqEntity<M> implements Serializable {
     public String toString() {
         final StringBuffer sb = new StringBuffer("MqEntity{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", key=").append(key.toString());
-        sb.append(", msg=").append(msg.toString());
+        sb.append(", key=").append(key);
+        sb.append(", msg=").append(msg);
         sb.append(", spread=").append(spread);
         sb.append(", serverip='").append(serverip).append('\'');
         sb.append(", isSended=").append(isSended);

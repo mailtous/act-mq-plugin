@@ -1,5 +1,6 @@
 package com.artlongs.mq;
 
+import act.app.conf.AppConfigPlugin;
 import act.app.conf.AppConfigurator;
 import act.app.conf.AutoConfig;
 import org.osgl.$;
@@ -11,7 +12,7 @@ import org.osgl.util.Const;
  * Created by leeton on 8/19/17.
  */
 @AutoConfig("mq")
-public class MqConfig {
+public class MqConfig extends AppConfigurator {
 
     //MQ 实例
     public static final String provider_redis = "redis";
@@ -51,4 +52,8 @@ public class MqConfig {
     public static final Const<Integer> mq_redis_connetion_timeout = $.constant(0);
     public static final Const<Integer> redis_database = $.constant(0);
 
+    @Override
+    public void configure() {
+
+    }
 }

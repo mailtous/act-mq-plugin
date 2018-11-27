@@ -9,7 +9,7 @@ import java.io.Serializable;
  */
 public class FastJsonSerializer implements ISerializer {
     @Override
-    public byte[] getByte(Object obj) {
+    public byte[] toByte(Object obj) {
 
         return JSON.toJSONBytes(obj);
     }
@@ -31,7 +31,7 @@ public class FastJsonSerializer implements ISerializer {
 
     public static void main(String[] args) {
         MqEntity msgEntity = MqEntity.ofDef("test");
-        byte[] bytes = new FastJsonSerializer().getByte(msgEntity);
+        byte[] bytes = new FastJsonSerializer().toByte(msgEntity);
         MqEntity entity =  new FastJsonSerializer().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
     }

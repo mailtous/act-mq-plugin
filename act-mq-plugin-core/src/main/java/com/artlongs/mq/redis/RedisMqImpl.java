@@ -1,5 +1,6 @@
 package com.artlongs.mq.redis;
 
+import act.app.App;
 import act.event.EventBus;
 import com.artlongs.mq.MQ;
 import com.artlongs.mq.MqEntity;
@@ -20,7 +21,6 @@ import java.nio.charset.Charset;
 public class RedisMqImpl implements MQ {
     private static Logger logger = L.get(RedisMqImpl.class);
 
-    @Inject
     private EventBus eventBus;
     private ISerializer serializer;
     private JedisPool jedisPool;
@@ -28,8 +28,8 @@ public class RedisMqImpl implements MQ {
     @Override
     public RedisMqImpl init(ISerializer serializer) {
         this.jedisPool = RedisConfig.buildConnetion();
-//        this.eventBus = eventBus;
         this.serializer = serializer;
+        this.eventBus = App.instance().eventBus();
         return this;
     }
 
@@ -42,7 +42,7 @@ public class RedisMqImpl implements MQ {
     @Override
     public <MODEL> MqEntity send(MqEntity mqEntity) {
         byte[] redisKey = mqEntity.getKey().getTopic().getBytes(Charset.forName("utf-8"));
-        byte[] message = serializer.getByte(mqEntity.getMsg());
+        byte[] message = serializer.toByte(mqEntity);
         mqEntity.setSended(publish(redisKey, message));
         return mqEntity;
     }

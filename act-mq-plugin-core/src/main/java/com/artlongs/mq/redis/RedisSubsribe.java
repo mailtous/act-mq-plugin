@@ -4,6 +4,7 @@ import act.event.EventBus;
 import com.artlongs.mq.MqEntity;
 import com.artlongs.mq.rabbitmq.CallMe;
 import com.artlongs.mq.serializer.ISerializer;
+import org.osgl.util.S;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.Jedis;
 
@@ -45,11 +46,13 @@ public class RedisSubsribe extends BinaryJedisPubSub implements Runnable {
     }
 
     private void exec(byte[] message) {
-        MqEntity msg = serializer.getObj(message);
-        if (null != callMe) {
-            callMe.exec(msg);
+        MqEntity mqEntity = serializer.getObj(message);
+        mqEntity.setReaded(true);
+        mqEntity.setSended(true);
+        if (null !=mqEntity && null != callMe) {
+            callMe.exec(mqEntity);
         } else {
-            eventBus.trigger(eventKey, msg);
+            eventBus.triggerAsync(eventKey, mqEntity);
         }
     }
 

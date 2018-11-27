@@ -1,8 +1,9 @@
 package com.artlongs.mq.rocketmq;
 
+import act.app.App;
 import act.event.EventBus;
-import com.artlongs.mq.MqConfig;
 import com.artlongs.mq.MQ;
+import com.artlongs.mq.MqConfig;
 import com.artlongs.mq.MqEntity;
 import com.artlongs.mq.rabbitmq.CallMe;
 import com.artlongs.mq.serializer.ISerializer;
@@ -29,15 +30,14 @@ import javax.inject.Inject;
 public class RocketMqImpl implements MQ {
     private static Logger logger = L.get(RocketMqImpl.class);
 
-    @Inject
-    private static EventBus eventBus;
+    private EventBus eventBus;
     private static ISerializer serializer;
     private DefaultMQProducer producer = buildProducer();
 
     @Override
     public RocketMqImpl init(ISerializer serializer) {
-//        this.eventBus = eventBus;
         this.serializer = serializer;
+        this.eventBus = App.instance().eventBus();
         return this;
     }
 
@@ -56,7 +56,7 @@ public class RocketMqImpl implements MQ {
                 message.setBuyerId(mqEntity.getId());
                 message.setTopic(mqEntity.getKey().getTopic());
                 message.setTags(mqEntity.getKey().getTags());
-                message.setBody(serializer.getByte(mqEntity.getMsg()));
+                message.setBody(serializer.toByte(mqEntity.getMsg()));
                 SendResult sendResult = producer.send(message);
                 if (sendResult != null && SendStatus.SEND_OK == sendResult.getSendStatus()) {
                     mqEntity.setSended(true);
@@ -102,11 +102,13 @@ public class RocketMqImpl implements MQ {
                     if (msgList.size() > 0) {
                         MessageExt msg = msgList.get(0);
                         MqEntity msgEntity = serializer.getObj(msg.getBody(), MqEntity.class);
+                        msgEntity.setReaded(true);
+                        msgEntity.setSended(true);
                         //执行真正的业务
                         if (callMe != null) {
                             callMe.exec(msgEntity);
                         } else {
-                            eventBus.trigger(eventKey, msgEntity);
+                            eventBus.triggerAsync(eventKey, msgEntity);
                         }
                     }
 

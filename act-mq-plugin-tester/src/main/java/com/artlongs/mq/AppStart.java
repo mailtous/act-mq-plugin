@@ -1,9 +1,11 @@
 package com.artlongs.mq;
 
 import act.Act;
+import act.app.App;
 import act.controller.Controller;
 import act.event.EventBus;
 import act.event.On;
+import act.event.OnEvent;
 import org.joda.time.DateTime;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
@@ -23,6 +25,7 @@ public class AppStart extends Controller.Util{
     @Inject
     private EventBus eventBus;
 
+
     public static void main(String[] args) throws Exception {
         Act.start("mq","com.artlongs.mq");
     }
@@ -36,9 +39,11 @@ public class AppStart extends Controller.Util{
         MqEntity msgEntity = new MqEntity(MqEntity.Key.ofRedis("mq:topic"), "");
         logger.info("test mq send");
         for (int i = 0; i < 1; i++) {
-            String msg = " test"+i;
+            String msg = " message for mq-redis:"+i;
             msgEntity = mq.send(msgEntity.setMsg(msg),  MQ.Spread.TOPIC);
         }
+
+
 
         return renderJson(msgEntity);
     }
@@ -74,32 +79,19 @@ public class AppStart extends Controller.Util{
     /**
      *  测试消息接收
      * @param msgEntity
-     * @param dateTime
      */
-    @On("show_topic_1")
-    public static void onMessageShow(Object msgEntity, DateTime dateTime){
-        System.err.println(" SHOW OF EVENT :" + msgEntity);
+    @On(value = "show_topic_1")
+    public void onMessageShow(MqEntity msgEntity){
+        System.err.println(" SHOW OF REC EVENT :" + msgEntity);
     }
 
     @GetAction("/u")
     public Result signUp() {
         logger.info(">> user sign up");
-        eventBus.trigger("show_topic_1", "hello,leeton.", DateTime.now());
+        App.instance().eventBus().trigger("show_topic_1", MqEntity.ofDef("hello,leeton."));
        return renderJson("OK");
     }
 
-
-
-    /**
-     * 如何把Hello的name 转给加注解的方法
-     * @param name
-     * @return
-     */
-    @GetAction("/hello")
-    public Result doHello(String name){
-        System.err.println("say hello :" + name );
-        return renderJson("hello"+name);
-    }
 
 
     @MqReceiver("topic")
@@ -107,6 +99,7 @@ public class AppStart extends Controller.Util{
         System.err.println("say hello :" + msg);
         return renderJson("hello" + msg);
     }
+
 
 
 

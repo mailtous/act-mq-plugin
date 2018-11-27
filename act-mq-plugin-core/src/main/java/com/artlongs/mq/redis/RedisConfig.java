@@ -1,7 +1,7 @@
 package com.artlongs.mq.redis;
 
 import com.artlongs.mq.MqConfig;
-import org.apache.commons.lang3.StringUtils;
+import org.osgl.util.S;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -21,10 +21,13 @@ public class RedisConfig {
 
         JedisPool jedisPool = null;
         JedisPoolConfig poolConfig = new JedisPoolConfig();
-        if (StringUtils.isNoneBlank(username) && StringUtils.isNoneBlank(password)) {
+        if (S.isNotBlank(password)) {
             jedisPool = new JedisPool(poolConfig, host, port, timeout, password, db, username);
         }
-        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+        if (S.isNotBlank(username) && S.isNotBlank(password)) {
+            jedisPool = new JedisPool(poolConfig, host, port, timeout, password, db, username);
+        }
+        if (S.isBlank(username) || S.isBlank(password)) {
             jedisPool = new JedisPool(poolConfig, host, port, timeout, null, db, null);
         }
 

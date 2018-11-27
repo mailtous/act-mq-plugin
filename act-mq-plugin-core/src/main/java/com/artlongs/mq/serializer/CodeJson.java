@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public class CodeJson implements ISerializer {
     @Override
-    public byte[] getByte(Object obj) {
+    public byte[] toByte(Object obj) {
         String jsonStr = JsonTool.write(obj);
         return jsonStr.getBytes();
     }
@@ -32,7 +32,7 @@ public class CodeJson implements ISerializer {
 
     public static void main(String[] args) {
         MqEntity msgEntity = MqEntity.ofDef("test");
-        byte[] bytes = new CodeJson().getByte(msgEntity);
+        byte[] bytes = new CodeJson().toByte(msgEntity);
         MqEntity entity =  new CodeJson().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
     }

@@ -17,7 +17,7 @@
 
     <properties>
         <app.entry>com.artlongs.mq.AppStart</app.entry>
-        <app.base>${project.basedir}/act-mq-plugin-tester</app.base>
+        <app.base>${project.basedir}</app.base>
     </properties>
     <dependencies>
         <dependency>

@@ -27,9 +27,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+        <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
+        <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <act.version>1.8.12</act.version>
         <app.entry>com.artlongs.mq.AppStart</app.entry>
-        <app.base>${project.basedir}/act-mq-plugin-tester/</app.base>
+        <app.base>${project.basedir}</app.base>
     </properties>
     <scm>
         <connection>scm:git:${scm.url}</connection>
@@ -63,6 +66,23 @@
                     <configuration>
                         <includePom>true</includePom>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

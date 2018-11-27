@@ -17,7 +17,7 @@ public class GsonSerializer implements ISerializer {
     Gson gson = new GsonBuilder().create();
 
     @Override
-    public byte[] getByte(Object obj) {
+    public byte[] toByte(Object obj) {
         String jsonStr = gson.toJson(obj);
         return jsonStr.getBytes();
 

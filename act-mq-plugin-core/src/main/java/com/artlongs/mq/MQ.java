@@ -12,7 +12,6 @@ import javax.inject.Singleton;
  */
 public interface MQ {
 
-
     /**
      * 消息传播方式
      */
@@ -24,7 +23,7 @@ public interface MQ {
     class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
-            bind(MQ.class).in(Singleton.class).to(new MqProvider().get());
+            bind(MQ.class).in(Singleton.class).to(new MqProvider());
         }
     }
 

@@ -30,15 +30,14 @@ public class RabbitMqImpl implements MQ {
 
     private Connection connection;
 
-    @Inject
     private EventBus eventBus;
-
     private ISerializer serializer;
 
 
     public RabbitMqImpl init(ISerializer serializer) {
         getConnection();
         this.serializer = serializer;
+        this.eventBus = eventBus;
         return this;
     }
 
@@ -70,7 +69,7 @@ public class RabbitMqImpl implements MQ {
             //设置消息ID,有需要的话可以通过id来进行消息排序
             AMQP.BasicProperties basicProperties = new AMQP.BasicProperties().builder().messageId(msgEntity.getId()).build();
             logger.debug(" [SEND] =" + msgEntity);
-            channel.basicPublish(msgEntity.getKey().getExchange(), msgEntity.getKey().getTopic(), basicProperties, serializer.getByte(msgEntity));
+            channel.basicPublish(msgEntity.getKey().getExchange(), msgEntity.getKey().getTopic(), basicProperties, serializer.toByte(msgEntity));
 
             msgEntity.setSended(true);
             closeChannel(channel);
@@ -162,6 +161,7 @@ public class RabbitMqImpl implements MQ {
                 logger.debug("[RECE] '" + envelope.getRoutingKey() + "':'" + msgEntity.getMsg() + " id: " + properties.getMessageId());
                 channel.basicAck(envelope.getDeliveryTag(), false);//手动确认已收到消息
                 msgEntity.setReaded(true);
+                msgEntity.setSended(true);
                 callMe.exec(msgEntity);
             }
         };
@@ -187,7 +187,8 @@ public class RabbitMqImpl implements MQ {
                 logger.debug("[RECE] '" + envelope.getRoutingKey() + "':'" + msgEntity.getMsg());
                 channel.basicAck(envelope.getDeliveryTag(), false);//手动确认已收到消息
                 msgEntity.setReaded(true);
-                eventBus.emitAsync(eventKey, msgEntity, DateTime.now());
+                msgEntity.setSended(true);
+                eventBus.triggerAsync(eventKey, msgEntity, DateTime.now());
             }
         };
         return consumer;

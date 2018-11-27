@@ -11,7 +11,7 @@ public class Fst2Serializer implements ISerializer {
 
     static FSTConfiguration fst = FSTConfiguration.createDefaultConfiguration();
 
-    public byte[] getByte(Object obj) {
+    public byte[] toByte(Object obj) {
         if (obj == null) return null;
         return fst.asByteArray(obj);
     }
@@ -29,7 +29,7 @@ public class Fst2Serializer implements ISerializer {
 
     public static void main(String[] args) {
         MqEntity msgEntity = MqEntity.ofDef("test");
-        byte[] bytes = new Fst2Serializer().getByte(msgEntity);
+        byte[] bytes = new Fst2Serializer().toByte(msgEntity);
         MqEntity entity =  new Fst2Serializer().getObj(bytes);
         System.out.println("entity = [" + entity + "]");
 
