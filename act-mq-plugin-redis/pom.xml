@@ -8,33 +8,26 @@
         <artifactId>act-mq-plugin-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-
     <groupId>act-mq-plugin</groupId>
-    <artifactId>act-mq-plugin-core</artifactId>
-    <version>${act-mq-plugin-core-version}</version>
+    <artifactId>act-mq-plugin-redis</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
-    <name>act-mq-plugin-core</name>
+    <name>act-mq-plugin-redis</name>
     <url>https://github.com/mailtous/act-mq-plugin</url>
 
     <dependencies>
-        <!-- serializer  begin -->
         <dependency>
-            <groupId>de.ruedigermoeller</groupId>
-            <artifactId>fst</artifactId>
-            <version>2.50</version>
+            <groupId>act-mq-plugin</groupId>
+            <artifactId>act-mq-plugin-core</artifactId>
+            <version>${act-mq-plugin-core-version}</version>
         </dependency>
+        <!-- redis mq-->
         <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo</artifactId>
-            <version>4.0.1</version>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
         </dependency>
-        <dependency>
-            <groupId>de.javakaffee</groupId>
-            <artifactId>kryo-serializers</artifactId>
-            <version>0.42</version>
-        </dependency>
-        <!-- serializer end -->
-
     </dependencies>
+
 
 </project>

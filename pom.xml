@@ -19,6 +19,9 @@
 
     <modules>
         <module>act-mq-plugin-core</module>
+        <module>act-mq-plugin-redis</module>
+        <module>act-mq-plugin-rabbit</module>
+        <module>act-mq-plugin-rocket</module>
         <module>act-mq-plugin-tester</module>
     </modules>
 
@@ -30,8 +33,9 @@
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-dependency-plugin.version>3.0.2</maven-dependency-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+        <act-mq-plugin-core-version>0.0.1-SNAPSHOT</act-mq-plugin-core-version>
         <act.version>1.8.12</act.version>
-        <app.entry>com.artlongs.mq.AppStart</app.entry>
+        <app.entry>AppStart</app.entry>
         <app.base>${project.basedir}</app.base>
     </properties>
     <scm>
@@ -94,19 +98,11 @@
             <artifactId>act</artifactId>
             <version>${act.version}</version>
         </dependency>
-
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.1.6</version>
         </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.6</version>
-        </dependency>
-
 
     </dependencies>
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>act-mq-plugin-parent</artifactId>
+        <groupId>act-mq-plugin</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>act-mq-plugin-rabbit</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <url>https://github.com/mailtous/act-mq-plugin</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>act-mq-plugin</groupId>
+            <artifactId>act-mq-plugin-core</artifactId>
+            <version>${act-mq-plugin-core-version}</version>
+        </dependency>
+        <!-- rabbitmq client -->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

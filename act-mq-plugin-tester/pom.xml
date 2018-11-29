@@ -16,15 +16,27 @@
     <url>https://github.com/mailtous/act-mq-plugin</url>
 
     <properties>
-        <app.entry>com.artlongs.mq.AppStart</app.entry>
+        <app.entry>com.artlongs.act.mq.plugin.core.AppStart</app.entry>
         <app.base>${project.basedir}</app.base>
     </properties>
     <dependencies>
+        <!-- 按需加载要使用的 MQ 系统 BEGIN -->
         <dependency>
             <groupId>act-mq-plugin</groupId>
-            <artifactId>act-mq-plugin-core</artifactId>
+            <artifactId>act-mq-plugin-redis</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>act-mq-plugin</groupId>
+            <artifactId>act-mq-plugin-rabbit</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>act-mq-plugin</groupId>
+            <artifactId>act-mq-plugin-rocket</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!-- 按需加载要使用的 MQ 系统 END -->
     </dependencies>
     <build>
         <plugins>
