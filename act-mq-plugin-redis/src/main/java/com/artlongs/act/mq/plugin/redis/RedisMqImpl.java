@@ -3,6 +3,7 @@ package com.artlongs.act.mq.plugin.redis;
 import act.app.App;
 import act.event.EventBus;
 import com.artlongs.act.mq.plugin.core.*;
+import com.artlongs.act.mq.plugin.core.annotation.RedisMq;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
 import org.osgl.inject.annotation.Provides;
 import org.osgl.logging.L;
@@ -29,7 +30,7 @@ public class RedisMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
-            bind(MQ.class).in(Singleton.class).named("redismq").to(new Provider<MQ>() {
+            bind(MQ.class).in(Singleton.class).qualifiedWith(RedisMq.class).named("redismq").to(new Provider<MQ>() {
                 @Override
                 public MQ get() {
                     return new RedisMqImpl();

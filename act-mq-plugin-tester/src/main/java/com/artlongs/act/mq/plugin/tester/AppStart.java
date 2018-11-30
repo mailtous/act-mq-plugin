@@ -8,6 +8,9 @@ import act.event.On;
 import com.artlongs.act.mq.plugin.core.MQ;
 import com.artlongs.act.mq.plugin.core.MqEntity;
 import com.artlongs.act.mq.plugin.core.MqReceiver;
+import com.artlongs.act.mq.plugin.core.annotation.RabbitMq;
+import com.artlongs.act.mq.plugin.core.annotation.RedisMq;
+import com.artlongs.act.mq.plugin.core.annotation.RocketMq;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
 import org.osgl.mvc.annotation.GetAction;
@@ -21,16 +24,13 @@ public class AppStart extends Controller.Util{
 
     private static Logger logger = L.get(AppStart.class);
 
-    @Inject
-    @Named("redismq")
+    @RedisMq
     private MQ redismq;
 
-    @Inject
-    @Named("rabbitmq")
+    @RabbitMq
     private MQ rabbitmq;
 
-    @Inject
-    @Named("rocketmq")
+    @RocketMq
     private MQ rocketmq;
 
     @Inject

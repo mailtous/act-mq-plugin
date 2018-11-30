@@ -2,6 +2,7 @@ package com.artlongs.act.mq.plugin.rabbit;
 
 import act.event.EventBus;
 import com.artlongs.act.mq.plugin.core.*;
+import com.artlongs.act.mq.plugin.core.annotation.RabbitMq;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +29,6 @@ public class RabbitMqImpl implements MQ {
     private ISerializer serializer;
 
     public RabbitMqImpl() {
-        init(ISerializer.Serializer.INST.of());
     }
 
     public RabbitMqImpl init(ISerializer serializer) {
@@ -41,12 +41,13 @@ public class RabbitMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
-            bind(MQ.class).in(Singleton.class).named("rabbitmq").to(new Provider<MQ>() {
-                @Override
-                public MQ get() {
-                    return new RabbitMqImpl();
-                }
-            });
+                bind(MQ.class).in(Singleton.class).qualifiedWith(RabbitMq.class).named("rabbitmq").to(new Provider<MQ>() {
+                    @Override
+                    public MQ get() {
+                        return new RabbitMqImpl().init(ISerializer.Serializer.INST.of());
+                    }
+                });
+
         }
     }
 

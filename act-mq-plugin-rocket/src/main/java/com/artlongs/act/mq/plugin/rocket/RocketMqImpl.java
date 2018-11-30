@@ -6,6 +6,7 @@ import com.artlongs.act.mq.plugin.core.CallMe;
 import com.artlongs.act.mq.plugin.core.MQ;
 import com.artlongs.act.mq.plugin.core.MqConfig;
 import com.artlongs.act.mq.plugin.core.MqEntity;
+import com.artlongs.act.mq.plugin.core.annotation.RocketMq;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -52,7 +53,7 @@ public class RocketMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
-            bind(MQ.class).in(Singleton.class).named("rocketmq").to(new Provider<MQ>() {
+            bind(MQ.class).in(Singleton.class).qualifiedWith(RocketMq.class).named("rocketmq").to(new Provider<MQ>() {
                 @Override
                 public MQ get() {
                     return new RocketMqImpl();
