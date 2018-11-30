@@ -2,9 +2,7 @@ package com.artlongs.act.mq.plugin.redis;
 
 import act.app.App;
 import act.event.EventBus;
-import com.artlongs.act.mq.plugin.core.CallMe;
-import com.artlongs.act.mq.plugin.core.MQ;
-import com.artlongs.act.mq.plugin.core.MqEntity;
+import com.artlongs.act.mq.plugin.core.*;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
 import org.osgl.inject.annotation.Provides;
 import org.osgl.logging.L;
@@ -12,9 +10,9 @@ import org.osgl.logging.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.nio.charset.Charset;
 import javax.inject.Provider;
 import javax.inject.Singleton;
-import java.nio.charset.Charset;
 
 /**
  * REDIS 消息发送与接收
@@ -28,7 +26,7 @@ public class RedisMqImpl implements MQ {
     private ISerializer serializer;
     private JedisPool jedisPool;
 
-    public class Module extends org.osgl.inject.Module {
+    public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
             bind(MQ.class).in(Singleton.class).named("redismq").to(new Provider<MQ>() {

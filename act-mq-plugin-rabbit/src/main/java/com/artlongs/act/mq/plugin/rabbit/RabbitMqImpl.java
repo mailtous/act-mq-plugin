@@ -1,10 +1,7 @@
 package com.artlongs.act.mq.plugin.rabbit;
 
 import act.event.EventBus;
-import com.artlongs.act.mq.plugin.core.CallMe;
-import com.artlongs.act.mq.plugin.core.MQ;
-import com.artlongs.act.mq.plugin.core.MqConfig;
-import com.artlongs.act.mq.plugin.core.MqEntity;
+import com.artlongs.act.mq.plugin.core.*;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.StringUtils;
@@ -13,13 +10,9 @@ import org.osgl.$;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
 
-import javax.inject.Named;
-import javax.inject.Provider;
-import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
+import javax.inject.*;
 
 /**
  * Rabbitmq 实现
@@ -45,7 +38,7 @@ public class RabbitMqImpl implements MQ {
         return this;
     }
 
-    public class Module extends org.osgl.inject.Module {
+    public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
             bind(MQ.class).in(Singleton.class).named("rabbitmq").to(new Provider<MQ>() {

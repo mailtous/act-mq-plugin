@@ -49,7 +49,7 @@ public class RocketMqImpl implements MQ {
         return this;
     }
 
-    public class Module extends org.osgl.inject.Module {
+    public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
             bind(MQ.class).in(Singleton.class).named("rocketmq").to(new Provider<MQ>() {
