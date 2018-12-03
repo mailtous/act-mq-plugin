@@ -6,7 +6,7 @@
 act-mq-plugin-tester --> AppStart
 项目的启动目录要配置成:%MODULE_WORKING_DIR%
 
-#通常一个系统只使用一种 MQ , 因些按需引入要使用的 MQ 依赖
+#通常一个系统只使用一种 MQ , 故按需引入要使用的 MQ 依赖
 EG:使用 REDIS-MQ,则只需要引入:
 MAVEN 
 ```xml
@@ -28,6 +28,19 @@ mq.redis.connetion.timeout=20000
 mq.redis.database=0
 mq.redis.username=xxx
 mq.redis.password=xxx
+
+```
+
+# 客户端 APP 调用时,注入相应的 MQ 服务,EG:
+``` java
+    @RedisMq
+    private MQ redismq;
+
+    @RabbitMq
+    private MQ rabbitmq;
+
+    @RocketMq
+    private MQ rocketmq;
 
 ```
 
