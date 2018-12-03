@@ -1,6 +1,7 @@
 package com.artlongs.act.mq.plugin.redis;
 
 import act.event.EventBus;
+import com.artlongs.act.mq.plugin.core.MQ;
 import com.artlongs.act.mq.plugin.core.MqEntity;
 import com.artlongs.act.mq.plugin.core.CallMe;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
@@ -23,7 +24,7 @@ public class RedisSubsribe extends BinaryJedisPubSub implements Runnable {
     @Override
     public void onMessage(byte[] channel, byte[] message) {
         exec(message);
-        subscribe(channel);//释放订阅
+        unsubscribe(channel);
     }
 
     /**
@@ -53,6 +54,7 @@ public class RedisSubsribe extends BinaryJedisPubSub implements Runnable {
         } else {
             eventBus.triggerAsync(eventKey, mqEntity);
         }
+
     }
 
     @Override

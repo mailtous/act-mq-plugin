@@ -51,10 +51,8 @@ public class AppStart extends Controller.Util{
         logger.info("test mq send");
         for (int i = 0; i < 1; i++) {
             String msg = " message for mq-redis:"+i;
-            msgEntity = redismq.send(msgEntity.setMsg(msg),  MQ.Spread.TOPIC);
+            msgEntity = redismq.send(msgEntity.setMsg(msg),  MQ.Spread.FANOUT);
         }
-
-
 
         return renderJson(msgEntity);
     }
