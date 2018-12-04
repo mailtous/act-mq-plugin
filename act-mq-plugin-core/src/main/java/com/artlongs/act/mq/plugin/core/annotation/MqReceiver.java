@@ -1,4 +1,4 @@
-package com.artlongs.act.mq.plugin.core;
+package com.artlongs.act.mq.plugin.core.annotation;
 
 import act.app.App;
 import act.app.AppByteCodeScanner;

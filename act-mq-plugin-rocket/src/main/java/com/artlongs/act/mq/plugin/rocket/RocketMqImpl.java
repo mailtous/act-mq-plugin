@@ -1,6 +1,7 @@
 package com.artlongs.act.mq.plugin.rocket;
 
 import act.app.App;
+import act.app.conf.AppConfigPlugin;
 import act.event.EventBus;
 import com.artlongs.act.mq.plugin.core.CallMe;
 import com.artlongs.act.mq.plugin.core.MQ;
@@ -37,7 +38,7 @@ public class RocketMqImpl implements MQ {
 
     private EventBus eventBus;
     private static ISerializer serializer;
-    private DefaultMQProducer producer = buildProducer();
+    private DefaultMQProducer producer;
 
     public RocketMqImpl() {
         init(ISerializer.Serializer.INST.of());
@@ -71,17 +72,17 @@ public class RocketMqImpl implements MQ {
 
     @Override
     public <MODEL> MqEntity send(MqEntity mqEntity, Spread sendType) {
-        if (producer != null) {
+        if (buildProducer() != null) {
             try {
                 Message message = new Message();
                 message.setBuyerId(mqEntity.getId());
                 message.setTopic(mqEntity.getKey().getTopic());
                 message.setTags(mqEntity.getKey().getTags());
-                message.setBody(serializer.toByte(mqEntity.getMsg()));
+                message.setBody(serializer.toByte(mqEntity));
                 SendResult sendResult = producer.send(message);
                 if (sendResult != null && SendStatus.SEND_OK == sendResult.getSendStatus()) {
                     mqEntity.setSended(true);
-                    logger.debug("[SEND] msg = [{}], topic = [{}], sendType = [{}]", mqEntity.getMsg(), mqEntity.getKey().getTopic(), mqEntity.getSpread());
+                    logger.debug("[SEND] msg = [%s], topic = [%s], sendType = [%s]", mqEntity.getMsg(), mqEntity.getKey().getTopic(), mqEntity.getSpread());
                 }
                 return mqEntity;
             } catch (Exception e) {
@@ -120,17 +121,24 @@ public class RocketMqImpl implements MQ {
                 consumer.subscribe(topic, tags);
                 consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
                 MessageListenerConcurrently listener = (msgList, context) -> {
-                    logger.debug("[RECV]" + Thread.currentThread().getName() + " Receive New Messages: " + msgList.size());
-                    if (msgList.size() > 0) {
-                        MessageExt msg = msgList.get(0);
-                        MqEntity msgEntity = serializer.getObj(msg.getBody(), MqEntity.class);
-                        msgEntity.setReaded(true);
-                        msgEntity.setSended(true);
-                        //执行真正的业务
-                        if (callMe != null) {
-                            callMe.exec(msgEntity);
-                        } else {
-                            eventBus.triggerAsync(eventKey, msgEntity);
+                    if (null != msgList && msgList.size() > 0) {
+                        try {
+                            MessageExt msg = msgList.get(0);
+                            logger.debug("[RECV] Msg Size:(%s), -> %s", msgList.size(),msg.toString());
+                            MqEntity msgEntity = serializer.getObj(msg.getBody(),MqEntity.class);
+                            msgEntity.setReaded(true);
+                            msgEntity.setSended(true);
+                            //执行真正的业务
+                            if (null!= callMe) {
+                                callMe.exec(msgEntity);
+                            } else {
+                                eventBus.triggerAsync(eventKey, msgEntity);
+                            }
+                        } catch (Exception e) {
+                            //NOTE: ROCKET MQ 一但报错就会造成,消息的重复,垃圾.
+                            logger.error("[RECV] " + Thread.currentThread().getName() +  e.getMessage());
+                            e.printStackTrace();
+                            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                         }
                     }
 
@@ -149,24 +157,28 @@ public class RocketMqImpl implements MQ {
     }
 
 
-    private static DefaultMQProducer buildProducer() {
-        String groupName = MqConfig.rocketmq_producergroupname.get() + System.currentTimeMillis() + "";
-        DefaultMQProducer producer = new DefaultMQProducer(groupName);
-        producer.setNamesrvAddr(MqConfig.rocketmq_namesrvaddr.get());
-        producer.setInstanceName(MqConfig.rocketmq_producer.get());
-        producer.setVipChannelEnabled(false);
-        try {
-            producer.start();
-        } catch (MQClientException e) {
-            producer.shutdown();
-            e.printStackTrace();
+    private DefaultMQProducer buildProducer() {
+        if(null == this.producer){
+            String groupName = MqConfig.rocketmq_producergroupname.get() ;
+            DefaultMQProducer producer = new DefaultMQProducer(groupName);
+            producer.setNamesrvAddr(MqConfig.rocketmq_namesrvaddr.get());
+            producer.setInstanceName(MqConfig.rocketmq_producer.get());
+            producer.setVipChannelEnabled(false);
+            try {
+                producer.start();
+                this.producer = producer;
+            } catch (MQClientException e) {
+                producer.shutdown();
+                e.printStackTrace();
+            }
         }
+
         return producer;
     }
 
 
     /**
-     * 创建消息者
+     * 创建消费者
      *
      * @return
      */

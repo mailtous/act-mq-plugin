@@ -7,7 +7,7 @@ import act.event.EventBus;
 import act.event.On;
 import com.artlongs.act.mq.plugin.core.MQ;
 import com.artlongs.act.mq.plugin.core.MqEntity;
-import com.artlongs.act.mq.plugin.core.MqReceiver;
+import com.artlongs.act.mq.plugin.core.annotation.MqReceiver;
 import com.artlongs.act.mq.plugin.core.annotation.RabbitMq;
 import com.artlongs.act.mq.plugin.core.annotation.RedisMq;
 import com.artlongs.act.mq.plugin.core.annotation.RocketMq;
@@ -17,7 +17,6 @@ import org.osgl.mvc.annotation.GetAction;
 import org.osgl.mvc.result.Result;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 @Controller
 public class AppStart extends Controller.Util{
@@ -100,15 +99,6 @@ public class AppStart extends Controller.Util{
         App.instance().eventBus().trigger("show_topic_1", MqEntity.ofDef("hello,leeton."));
        return renderJson("OK");
     }
-
-
-
-    @MqReceiver("topic")
-    public Result getMq(MqEntity msg) {
-        System.err.println("say hello :" + msg);
-        return renderJson("hello" + msg);
-    }
-
 
 
 
