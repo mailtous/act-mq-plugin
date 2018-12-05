@@ -9,6 +9,7 @@ import com.artlongs.act.mq.plugin.core.MqConfig;
 import com.artlongs.act.mq.plugin.core.MqEntity;
 import com.artlongs.act.mq.plugin.core.annotation.RocketMq;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
+import org.apache.rocketmq.client.consumer.DefaultMQPullConsumer;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
@@ -82,7 +83,7 @@ public class RocketMqImpl implements MQ {
                 SendResult sendResult = producer.send(message);
                 if (sendResult != null && SendStatus.SEND_OK == sendResult.getSendStatus()) {
                     mqEntity.setSended(true);
-                    logger.debug("[SEND] msg = [%s], topic = [%s], sendType = [%s]", mqEntity.getMsg(), mqEntity.getKey().getTopic(), mqEntity.getSpread());
+                    logger.debug("[SEND] info = %s,",mqEntity.toString());
                 }
                 return mqEntity;
             } catch (Exception e) {
@@ -124,8 +125,8 @@ public class RocketMqImpl implements MQ {
                     if (null != msgList && msgList.size() > 0) {
                         try {
                             MessageExt msg = msgList.get(0);
-                            logger.debug("[RECV] Msg Size:(%s), -> %s", msgList.size(),msg.toString());
-                            MqEntity msgEntity = serializer.getObj(msg.getBody(),MqEntity.class);
+                            logger.debug("[RECV] MessageExt Size:(%s), -> %s", msgList.size(),msg.toString());
+                            MqEntity msgEntity = serializer.getObj(msg.getBody());
                             msgEntity.setReaded(true);
                             msgEntity.setSended(true);
                             //执行真正的业务
@@ -177,25 +178,13 @@ public class RocketMqImpl implements MQ {
     }
 
 
-    /**
-     * 创建消费者
-     *
-     * @return
-     */
     private DefaultMQPushConsumer buildConsumer() {
-        String groupName = MqConfig.rocketmq_consumergroupname.get() + System.currentTimeMillis() + "";
+        String groupName = MqConfig.rocketmq_consumergroupname.get() + String.valueOf(System.currentTimeMillis()); //感觉概本就不是用户组呀:(
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(groupName);  //实质上还是拉取消息,无语
         consumer.setNamesrvAddr(MqConfig.rocketmq_namesrvaddr.get());
         consumer.setInstanceName(MqConfig.rocketmq_consumer.get());
         consumer.setVipChannelEnabled(false);
         return consumer;
-    }
-
-    public static CallMe toShow() {
-        CallMe todo = (c) -> {
-            logger.debug("[CALLME]: " + c);
-        };
-        return todo;
     }
 
 

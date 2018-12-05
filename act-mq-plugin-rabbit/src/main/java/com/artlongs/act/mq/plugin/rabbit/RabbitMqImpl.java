@@ -29,6 +29,7 @@ public class RabbitMqImpl implements MQ {
     private ISerializer serializer;
 
     public RabbitMqImpl() {
+        ISerializer.Serializer.INST.of();
     }
 
     public RabbitMqImpl init(ISerializer serializer) {
@@ -41,12 +42,12 @@ public class RabbitMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
-                bind(MQ.class).in(Singleton.class).qualifiedWith(RabbitMq.class).named("rabbitmq").to(new Provider<MQ>() {
-                    @Override
-                    public MQ get() {
-                        return new RabbitMqImpl().init(ISerializer.Serializer.INST.of());
-                    }
-                });
+            bind(MQ.class).in(Singleton.class).qualifiedWith(RabbitMq.class).named("rabbitmq").to(new Provider<MQ>() {
+                @Override
+                public MQ get() {
+                    return new RabbitMqImpl();
+                }
+            });
 
         }
     }
@@ -166,9 +167,9 @@ public class RabbitMqImpl implements MQ {
         Receiver consumer = (String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) -> {
             if (null != body) {
                 MqEntity msgEntity = getMessage(body);
-                boolean autoAck = false;
-                logger.debug("[RECE] '" + envelope.getRoutingKey() + "':'" + msgEntity.getMsg() + " id: " + properties.getMessageId());
-                channel.basicAck(envelope.getDeliveryTag(), false);//手动确认已收到消息
+                logger.debug("[RECE] info = %s'" ,msgEntity);
+                boolean autoAck = true;
+                channel.basicAck(envelope.getDeliveryTag(), false);//确认已收消息
                 msgEntity.setReaded(true);
                 msgEntity.setSended(true);
                 callMe.exec(msgEntity);
@@ -192,9 +193,9 @@ public class RabbitMqImpl implements MQ {
         Receiver consumer = (String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) -> {
             if (null != body) {
                 MqEntity msgEntity = getMessage(body);
-                boolean autoAck = false;
-                logger.debug("[RECE] '" + envelope.getRoutingKey() + "':'" + msgEntity.getMsg());
-                channel.basicAck(envelope.getDeliveryTag(), false);//手动确认已收到消息
+                logger.debug("[RECE] info = %s'" ,msgEntity);
+                boolean autoAck = true;
+                channel.basicAck(envelope.getDeliveryTag(), autoAck);//确认已收消息
                 msgEntity.setReaded(true);
                 msgEntity.setSended(true);
                 eventBus.triggerAsync(eventKey, msgEntity, DateTime.now());
@@ -298,13 +299,6 @@ public class RabbitMqImpl implements MQ {
         }
     }
 
-
-    public static CallMe toShow() {
-        CallMe todo = (c) -> {
-            logger.debug("[CALLME]: " + c);
-        };
-        return todo;
-    }
 
 
 }
