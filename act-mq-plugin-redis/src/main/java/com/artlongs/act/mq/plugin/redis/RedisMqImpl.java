@@ -45,7 +45,6 @@ public class RedisMqImpl implements MQ {
     }
 
     @Override
-    @Provides
     public RedisMqImpl init(ISerializer serializer) {
         this.jedisPool = RedisConfig.buildConnetion();
         this.serializer = serializer;

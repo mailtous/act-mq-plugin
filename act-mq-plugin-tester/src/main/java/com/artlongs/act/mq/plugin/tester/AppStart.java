@@ -5,7 +5,9 @@ import act.app.App;
 import act.controller.Controller;
 import act.event.EventBus;
 import act.event.On;
+import com.artlongs.act.mq.plugin.core.CallMe;
 import com.artlongs.act.mq.plugin.core.MQ;
+import com.artlongs.act.mq.plugin.core.MqConfig;
 import com.artlongs.act.mq.plugin.core.MqEntity;
 import com.artlongs.act.mq.plugin.core.annotation.MqReceiver;
 import com.artlongs.act.mq.plugin.core.annotation.RabbitMq;
@@ -43,6 +45,7 @@ public class AppStart extends Controller.Util{
 
     @GetAction("/mq/redis")
     public Result mqRedis() {
+        String host = MqConfig2.redis_host.get();
         // 接收消息,并回调执行
         boolean isReceived = redismq.subscribe(MqEntity.Key.ofRedis("mq:topic") ,"show_topic_1");
 
@@ -59,7 +62,13 @@ public class AppStart extends Controller.Util{
     @GetAction("/mq/rabbit")
     public Result mqrabbit() {
         // 接收消息,并回调执行
-        boolean isReceived = rabbitmq.subscribe(MqEntity.Key.ofRabbitDefault("topic") ,"show_topic_1");
+//        boolean isReceived = rabbitmq.subscribe(MqEntity.Key.ofRabbitDefault("topic") ,"show_topic_1");
+        boolean isReceived = rabbitmq.subscribe(MqEntity.Key.ofRabbitDefault("topic"), new CallMe() {
+            @Override
+            public void exec(Object o) {
+                System.err.println("recv:" + o.toString());
+            }
+        });
 
         MqEntity msgEntity = new MqEntity(MqEntity.Key.ofRabbitDefault("topic"), "");
         logger.info("test mq send");

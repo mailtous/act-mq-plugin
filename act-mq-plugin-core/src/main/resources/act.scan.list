@@ -1,0 +1,9 @@
+com.artlongs.act.mq.plugin.core.MqConfig
+com.artlongs.act.mq.plugin.core.MqPlugin
+com.artlongs.act.mq.plugin.core.MqEntity
+com.artlongs.act.mq.plugin.core.CallMe
+com.artlongs.act.mq.plugin.core.MQ
+com.artlongs.act.mq.plugin.core.annotation.*
+com.artlongs.act.mq.plugin.core.tools.*
+com.artlongs.act.mq.plugin.core.*
+com.artlongs.act.mq.plugin.*

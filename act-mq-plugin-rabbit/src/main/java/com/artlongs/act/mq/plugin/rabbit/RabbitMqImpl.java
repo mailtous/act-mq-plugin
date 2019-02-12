@@ -1,19 +1,25 @@
 package com.artlongs.act.mq.plugin.rabbit;
 
 import act.event.EventBus;
-import com.artlongs.act.mq.plugin.core.*;
+import com.artlongs.act.mq.plugin.core.CallMe;
+import com.artlongs.act.mq.plugin.core.MQ;
+import com.artlongs.act.mq.plugin.core.MqConfig;
+import com.artlongs.act.mq.plugin.core.MqEntity;
 import com.artlongs.act.mq.plugin.core.annotation.RabbitMq;
 import com.artlongs.act.mq.plugin.core.serializer.ISerializer;
 import com.rabbitmq.client.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.osgl.$;
+import org.osgl.inject.annotation.Provides;
 import org.osgl.logging.L;
 import org.osgl.logging.Logger;
 
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
-import javax.inject.*;
 
 /**
  * Rabbitmq 实现
@@ -29,9 +35,10 @@ public class RabbitMqImpl implements MQ {
     private ISerializer serializer;
 
     public RabbitMqImpl() {
-        ISerializer.Serializer.INST.of();
+        init(ISerializer.Serializer.INST.of());
     }
 
+    @Override
     public RabbitMqImpl init(ISerializer serializer) {
         getConnection();
         this.serializer = serializer;
@@ -290,7 +297,7 @@ public class RabbitMqImpl implements MQ {
 
     private void closeChannel(Channel channel) {
         try {
-            // 关闭频道
+            // 关闭通道
             channel.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -20,7 +20,7 @@ public class RedisConfig {
         String username = MqConfig.redis_username.get();
         String password = MqConfig.redis_password.get();
         Integer db = MqConfig.redis_database.get();
-        Integer timeout = MqConfig.mq_redis_connetion_timeout.get();
+        Integer timeout = MqConfig.redis_connetion_timeout.get();
 
         JedisPool jedisPool = null;
         JedisPoolConfig poolConfig = new JedisPoolConfig();

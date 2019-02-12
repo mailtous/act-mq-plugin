@@ -1,6 +1,5 @@
-package com.artlongs.act.mq.plugin.core;
+package com.artlongs.act.mq.plugin.tester;
 
-import act.app.conf.AppConfigurator;
 import act.app.conf.AutoConfig;
 import org.osgl.$;
 import org.osgl.util.Const;
@@ -11,7 +10,7 @@ import org.osgl.util.Const;
  * Created by leeton on 8/19/17.
  */
 @AutoConfig("mq")
-public class MqConfig {
+public class MqConfig2 {
 
     //MQ 实例
     public static final String provider_redis = "redis";
