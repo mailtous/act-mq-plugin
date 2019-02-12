@@ -27,6 +27,8 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import static act.app.conf.AutoConfigPlugin.loadPluginAutoConfig;
+
 /**
  * ROCKETMQ 的消息发送与接收
  * <p>
@@ -55,6 +57,7 @@ public class RocketMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
+            loadPluginAutoConfig(MqConfig.class, App.instance()); // 预先加载 MqConfig 配置文件
             bind(MQ.class).in(Singleton.class).qualifiedWith(RocketMq.class).named("rocketmq").to(new Provider<MQ>() {
                 @Override
                 public MQ get() {

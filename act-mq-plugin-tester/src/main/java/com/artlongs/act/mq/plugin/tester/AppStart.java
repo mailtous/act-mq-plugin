@@ -45,7 +45,7 @@ public class AppStart extends Controller.Util{
 
     @GetAction("/mq/redis")
     public Result mqRedis() {
-        String host = MqConfig2.redis_host.get();
+        String host = MqConfig.redis_host.get();
         // 接收消息,并回调执行
         boolean isReceived = redismq.subscribe(MqEntity.Key.ofRedis("mq:topic") ,"show_topic_1");
 

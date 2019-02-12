@@ -15,6 +15,8 @@ import java.nio.charset.Charset;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import static act.app.conf.AutoConfigPlugin.loadPluginAutoConfig;
+
 /**
  * REDIS 消息发送与接收
  * Created by leeton on 8/22/17.
@@ -30,6 +32,7 @@ public class RedisMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
+            loadPluginAutoConfig(MqConfig.class, App.instance()); // 预先加载 MqConfig 配置文件
             bind(MQ.class).in(Singleton.class).qualifiedWith(RedisMq.class).named("redismq").to(new Provider<MQ>() {
                 @Override
                 public MQ get() {

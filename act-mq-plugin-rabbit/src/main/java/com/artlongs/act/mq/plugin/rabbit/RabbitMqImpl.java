@@ -1,5 +1,6 @@
 package com.artlongs.act.mq.plugin.rabbit;
 
+import act.app.App;
 import act.event.EventBus;
 import com.artlongs.act.mq.plugin.core.CallMe;
 import com.artlongs.act.mq.plugin.core.MQ;
@@ -20,6 +21,8 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+
+import static act.app.conf.AutoConfigPlugin.loadPluginAutoConfig;
 
 /**
  * Rabbitmq 实现
@@ -49,6 +52,7 @@ public class RabbitMqImpl implements MQ {
     public static class Module extends org.osgl.inject.Module {
         @Override
         protected void configure() {
+            loadPluginAutoConfig(MqConfig.class, App.instance()); // 预先加载 MqConfig 配置文件
             bind(MQ.class).in(Singleton.class).qualifiedWith(RabbitMq.class).named("rabbitmq").to(new Provider<MQ>() {
                 @Override
                 public MQ get() {
