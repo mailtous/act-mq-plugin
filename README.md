@@ -1,5 +1,5 @@
-# Act-Mq-Plugin [![](https://jitpack.io/v/mailtous/act-mq-plugin.svg)](https://jitpack.io/#mailtous/act-mq-plugin)
-
+# Act-Mq-Plugin  
+[![](https://jitpack.io/v/mailtous/act-mq-plugin.svg)](https://jitpack.io/#mailtous/act-mq-plugin)
 使用ACT做的一个MQ 小插件，目前包括redis,rocketmq,rabbitmq(推荐) 三种MQ消息的接收与发送
 开发及运行环境 jdk8,idea,redis(rabbitmq,rocketmq)
 
@@ -20,11 +20,11 @@ EG:使用 REDIS-MQ,则只需要引入:
         </repository>
     </repositories>
 
-        <dependency>
-            <groupId>act-mq-plugin</groupId>
-            <artifactId>act-mq-plugin-redis</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+    <dependency>
+	    <groupId>com.github.mailtous.act-mq-plugin</groupId>
+	    <artifactId>act-mq-plugin-redis</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
+	</dependency>
 
 ```
 对应的 mq.properties 只需配置好 redis 属性项即可:
