@@ -12,6 +12,13 @@ act-mq-plugin-tester --> AppStart
 通常一个系统只使用一种 MQ , 故按需引入要使用的 MQ 依赖
 EG:使用 REDIS-MQ,则只需要引入:
 ```xml
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
         <dependency>
             <groupId>act-mq-plugin</groupId>
             <artifactId>act-mq-plugin-redis</artifactId>
