@@ -1,4 +1,5 @@
-# Act-Mq-Plugin
+# Act-Mq-Plugin [![](https://jitpack.io/v/mailtous/act-mq-plugin.svg)](https://jitpack.io/#mailtous/act-mq-plugin)
+
 使用ACT做的一个MQ 小插件，目前包括redis,rocketmq,rabbitmq(推荐) 三种MQ消息的接收与发送
 开发及运行环境 jdk8,idea,redis(rabbitmq,rocketmq)
 
